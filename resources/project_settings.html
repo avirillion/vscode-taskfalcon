@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src {{cspSource}}; script-src {{cspSource}}; style-src {{cspSource}};">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="{{resetCss}}" rel="stylesheet">
+    <link href="{{vsCodeCss}}" rel="stylesheet">
+    <link href="{{mainCss}}" rel="stylesheet">
+</head>
+<body>
+    <button class="formElement button" name="showProjectFile">Show main project file</button>
+    <input class="formElement" type="checkbox" name="hideTasks">Hide tasks<br>
+    <input class="formElement" type="checkbox" name="showIDs">Show IDs instead of names<br>
+    <input class="formElement" type="checkbox" name="showClosedTasks">Show closed tasks<br>
+    <div class="group">
+        Show Columns:<br>
+        <input class="formElement" type="checkbox" name="showEfforts">Efforts<br>
+        <input class="formElement" type="checkbox" name="showEffortsLeft">Efforts-Left<br>
+        <input class="formElement" type="checkbox" name="showEnds">End-Date<br>
+    </div>
+    <div class="group">
+        Display Chart Type:<br>
+        <select class="formElement" name="chart" size="4">
+            <option value="gantt" selected>Gantt</option>
+            <option value="gantt-with-resources">Gantt + Resources</option>
+            <option value="resources">Resources</option>
+            <option value="resources-with-tasks">Resources + Tasks</option>
+        </select><br>
+    </div>
+    <input type="text" class="formElement" name="prefix" placeholder="Render Task Prefix (Enter to submit)">
+    <button class="formElement button" name="closeProject">Close Project</button><br>
+    <!--
+    <button class="formElement button" name="renderProject">Render Project</button>
+    -->
+
+    <script src="{{mainJs}}"></script>
+</body>
+</html>

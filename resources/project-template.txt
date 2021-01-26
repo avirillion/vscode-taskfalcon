@@ -1,0 +1,43 @@
+# TaskFalcon project
+# This is your TaskFalcon project file. See more details here for an overview: https://taskfalcon.org/doc/main/index.html
+
+# This is the project definition. See more details here: https://taskfalcon.org/doc/config_project/index.html
+project:
+  name: My project
+  start: {{ date }}
+
+# The following block defines all people that will work on your project and contains
+# details regarding working time, annual leave, etc.
+# If you just want a simple GANTT chart without resource planning, you can remove this section.
+# See more details here: https://taskfalcon.org/doc/config_resources/index.html
+resources:
+  - resource: W1
+    name: Worker 1
+
+  - resource: W2
+    name: Worker 2
+    workingtime: MO:4h, TU, WE, TH, FR:4h # Working full time, except for Monday and Friday
+
+# This imports sub-projects or resources from other files, if you're scheduling a multi-project setup
+# This section is not required, hence it is commented out in this example.
+# See more details here: https://taskfalcon.org/doc/config_imports/index.html
+# imports:
+#   - subproject.yaml
+
+# This is the main part with all the task and milestone definitions.
+# See more details here: https://taskfalcon.org/doc/config_tasks/index.html
+tasks:
+  - task: T1
+    name: First task
+    efforts: 8h
+    assign: W2
+
+  - task: T2
+    name: Second task
+    efforts: 12h
+    assign: W1
+    depends: T1
+
+  - milestone: M1
+    name: Done
+    depends: T2

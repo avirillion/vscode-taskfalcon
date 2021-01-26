@@ -1,0 +1,268 @@
+---
+"$schema": http://json-schema.org/draft-07/schema#
+"$id": https://taskfalcon.org
+title: TaskFalcon Schema v0.9.8
+description: Validation Schema for TaskFalcon v0.9.8
+
+type: object
+properties:
+  project:
+    "$ref": "#/definitions/project"
+  resources:
+    "$ref": "#/definitions/resources"
+  tasks:
+    "$ref": "#/definitions/tasks"
+  updates:
+    "$ref": "#/definitions/updates"
+  imports:
+    "$ref": "#/definitions/imports"
+additionalProperties: false
+required:
+  - project
+anyOf:
+  - required: 
+    - tasks
+  - required: 
+    - imports
+
+definitions:
+
+  project:
+    type: object
+    title: TaskFalcon project definition
+    description: Required project definition
+    properties:
+      name:
+        type: string
+        title: Project name
+        description: The name of the project
+      start:
+        type: string
+        title: Start date of the project
+        "$ref": "#/definitions/types/date"
+    additionalProperties: false
+    required: [ start ]
+
+  imports:
+    type: array
+    title: File imports for sub-projects or resource files
+    items: string
+    uniqueItems: true
+
+  resources:
+    type: array
+    items:
+      oneOf:
+        - "$ref": "#/definitions/resource"
+        - "$ref": "#/definitions/filter"
+    title: Resource definitions for project
+    additionalProperties: false
+    uniqueItems: true
+
+  resource:
+    type: object
+    title: Resource definitions for project
+    properties:
+      resource:
+        type: [ string, number ]
+        title: Unique identifier of a resource
+      name:
+        type: string
+        title: Full name of the resource
+      dailymax:
+        type: string
+        title: Max. availability of this resource per day
+        "$ref": "#/definitions/types/duration"
+      workingtime:
+        type: string
+        title: Availability of this resource during a week
+      leave:
+        type: array
+        items: string
+        uniqueItems: true
+    additionalProperties: false
+    required: [ resource ]
+
+  filter:
+    type: object
+    title: Artificial resource filters
+    properties:
+      filter:
+        type: [ string, number ]
+        title: Unique identifier of a resource
+      name:
+        "$ref": "#/definitions/resource/properties/name"
+      dailymax:
+        "$ref": "#/definitions/resource/properties/dailymax"
+      workingtime:
+        "$ref": "#/definitions/resource/properties/workingtime"
+    additionalProperties: false
+    required: [ filter ]
+    
+  tasks:
+    type: array
+    title: Tasks, Milestones and Groups for project
+    items:
+      oneOf:
+        - "$ref": "#/definitions/task"
+        - "$ref": "#/definitions/group"
+        - "$ref": "#/definitions/milestone"
+    additionalProperties: false
+    uniqueItems: true
+
+  task:
+    type: object
+    title: Tasks for project
+    properties:
+      task:
+        type: [ string, number ]
+        title: ID of this task
+      name:
+        type: string
+        title: Display name of this task
+      priority:
+        type: number
+        title: Scheduling priority of this task. The higher the number, the more likely it will be given required resources
+      efforts:
+        type: string
+        title: Cumulated amount of time resources (employees) need to spend working on this task
+        "$ref": "#/definitions/types/duration"
+      effortsleft:
+        type: string
+        title: Amount of remaining efforts counted from the day of the current update
+        "$ref": "#/definitions/types/duration"
+      length:
+        type: string
+        title: Length of the task in business days/hours (no efforts)
+        "$ref": "#/definitions/types/duration"
+      lengthleft:
+        type: string
+        title: Amount of remaining time counted from the day of the current update
+        "$ref": "#/definitions/types/duration"
+      assign:
+        type: string
+        title: Assigned resources (employees) who will work on this tasks
+      depends:
+        type: string
+        title: Dependency on another task/milestone/group.
+      start:
+        type: string
+        title: Start date of the task
+        "$ref": "#/definitions/types/date"
+      end:
+        type: string
+        title: End date of the task
+        "$ref": "#/definitions/types/date"
+      dailymax:
+        type: string
+        title: Maximum amount of time all resources (combined) are allowed to work on this task per day
+        "$ref": "#/definitions/types/duration"
+      weeklymax:
+        type: string
+        title: Maximum amount of time all resources (combined) are allowed to work on this task per week
+        "$ref": "#/definitions/types/duration"
+      monthlymax:
+        type: string
+        title: Maximum amount of time all resources (combined) are allowed to work on this task per month
+        "$ref": "#/definitions/types/duration"
+      locked:
+        type: boolean
+        title: A locked tasks will not allow the scheduler to change the previously calculated start/end date due to changes in dependencies
+      active:
+        type: boolean
+        title: An non active task will neither be considered by the scheduler, nor show up in the charts
+    additionalProperties: false
+    required: [ task ]
+    dependencies: 
+      efforts: [ assign ]
+      assign: [ efforts ]
+
+  group:
+    type: object
+    title: Groups for tasks
+    properties:
+      group:
+        type: [ string, number ]
+        title: ID of this group
+      tasks:
+        "$ref": "#/definitions/tasks"
+      name:
+        type: string
+        title: Display name of this group
+      priority:
+        "$ref": "#/definitions/task/properties/priority"
+      depends:
+        "$ref": "#/definitions/task/properties/depends"
+      start:
+        "$ref": "#/definitions/task/properties/start"
+      end:
+        "$ref": "#/definitions/task/properties/end"
+    additionalProperties: false
+    required: [ group, tasks ]
+
+  milestone:
+    type: object
+    title: Milestones for this project 
+    properties:
+      milestone:
+        type: [ string, number ]
+        title: ID of this milestone
+      name:
+        type: string
+        title: Display name of this milestone
+      depends:
+        "$ref": "#/definitions/task/properties/depends"
+      start:
+        "$ref": "#/definitions/task/properties/start"
+      locked:
+        "$ref": "#/definitions/task/properties/locked"
+      active:
+        "$ref": "#/definitions/task/properties/active"
+    additionalProperties: false
+    required: 
+      - milestone
+    anyOf:
+      - required: 
+        - depends
+      - required: 
+        - start
+
+  updates:
+    type: array
+    title: Contains list of incremental project updates
+    items:
+      "$ref": "#/definitions/update"
+    additionalProperties: false
+    uniqueItems: true
+
+  update:
+    type: object
+    title: Incremental project update
+    properties:
+      update:
+        type: string
+        title: Date of this update
+        "$ref": "#/definitions/types/date"
+      project:
+        "$ref": "#/definitions/project"
+      resources:
+        "$ref": "#/definitions/resources"
+      tasks:
+        "$ref": "#/definitions/tasks"
+    additionalProperties: false
+    required: [ update ]
+    anyOf:
+      - required: 
+        - tasks
+      - required: 
+        - resources
+      - required: 
+        - project
+
+  types:
+    duration: 
+      pattern: "^([0-9]+w)? ?([0-9]+d)? ?([0-9]+h)? ?([0-9]+m)?$"
+      example: 4h 30m
+    date: 
+      pattern: "[0-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]"
+      example: 2020-06-01

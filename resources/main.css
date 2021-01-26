@@ -1,0 +1,14 @@
+body {
+	background-color: transparent;
+}
+
+.button {
+	display: block;
+	border: none;
+	margin: 0 auto;
+}
+
+.group {
+	float: left;
+	margin: 5px;
+}
