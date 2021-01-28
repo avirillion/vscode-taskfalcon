@@ -1,5 +1,5 @@
 # TaskFalcon 
-Visual Studio Code integration for the TaskFalcon project/task scheduler.
+Visual Studio Code integration for the [TaskFalcon](https://taskfalcon.org) project/task scheduler.
 
 ![Create Taskfalcon Project](resources/create-project.gif "Create Taskfalcon Project")
 

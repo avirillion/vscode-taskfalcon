@@ -2,7 +2,7 @@
   "name": "taskfalcon",
   "displayName": "TaskFalcon",
   "description": "Integration of the TaskFalcon project planner",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "publisher": "taskfalcon",
   "repository": {
     "type": "git",
@@ -59,7 +59,8 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "code": "vsce package --githubBranch main"
   },
   "devDependencies": {
     "@types/glob": "^7.1.3",
