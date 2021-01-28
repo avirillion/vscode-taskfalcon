@@ -7,6 +7,11 @@
     <title>TaskFalcon Preview</title>
 </head>
 <body>
-    <img alt="TaskFalcon Preview" src="{{image}}">
+    {{#if image}}
+        <img alt="TaskFalcon Preview" src="{{image}}">
+    {{/if}}
+    {{#if error}}
+        <pre>{{error}}</pre>
+    {{/if}}
 </body>
 </html>

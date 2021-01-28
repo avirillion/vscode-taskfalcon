@@ -328,7 +328,7 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
     /**
      * Shows a HTML page with the rendered TaskFalcon image
      */
-    private showPreview() {
+    private showPreview(imageUri?: vscode.Uri, error?: string) {
         if (this.preview) {
             this.preview.reveal(vscode.ViewColumn.Beside);
             this.preview!.title = "TaskFalcon Preview";
@@ -342,18 +342,12 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
             });
         }
 
-        let filename = this.document!.fileName;
-        let basename = filename;
-
-        if (filename.toLowerCase().endsWith('.yaml')) {
-            basename = filename.slice(0, filename.length-5);
-        } else if (basename.toLowerCase().endsWith('.yml')) {
-            basename = filename.slice(0, filename.length-4);
+        let image = undefined;
+        if (imageUri) {
+            image = this.preview!.webview.asWebviewUri(imageUri) + `?${new Date().getTime()}`;
         }
 
-        let imageUri = vscode.Uri.file(`${basename}.${this.previewConfig.chart}.png`);
-        let image = this.preview!.webview.asWebviewUri(imageUri) + `?${new Date().getTime()}`;
-        let resources = { image };
+        let resources = { image, error };
         this.preview!.webview.html = "";
         this.renderTemplate('preview.html', resources)
                 .then(data => this.preview!.webview.html = data.toString())
@@ -419,9 +413,25 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
         let output: string = "";
         try {
             output = await this.falconRunner.run();
-            this.showPreview();
+
+            if (output.indexOf("CRITICAL") > 0) {
+                throw(output);
+            }
+            
+            let filename = this.document!.fileName;
+            let basename = filename;
+
+            if (filename.toLowerCase().endsWith('.yaml')) {
+                basename = filename.slice(0, filename.length-5);
+            } else if (basename.toLowerCase().endsWith('.yml')) {
+                basename = filename.slice(0, filename.length-4);
+            }
+
+            let imageUri = vscode.Uri.file(`${basename}.${this.previewConfig.chart}.png`);
+            this.showPreview(imageUri, undefined);
         } catch (e) {
             output = e;
+            this.showPreview(undefined, e);
         }
 
         // Show output in console
