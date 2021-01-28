@@ -192,6 +192,9 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
         let webview = this.view!;
         switch (command) {
             case 'setActiveProject':
+                if (!this.checkValidWorkspaceFolder()) {
+                    return;
+                }
                 if (this.setActiveProject()) {
                     webview.webview.html = await this.renderTemplate('project_settings.html', resources);
                 } else {
@@ -209,6 +212,9 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
                 break;
 
             case 'newProject':
+                if (!this.checkValidWorkspaceFolder()) {
+                    return;
+                }
                 this.createNewProjectFile();
                 break;
 
@@ -279,6 +285,17 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
         let template = handlebars.compile(buffer.toString());
         this.pages[file] = template;
         return template(templateData);
+    }
+
+    /**
+     * Checks if there is a valid workspace folder open
+     */
+    private checkValidWorkspaceFolder(): boolean {
+        if ((vscode.workspace.workspaceFolders?.length ?? 0) < 1) {
+            vscode.window.showErrorMessage("You need to open a workspace folder before you can open or create a project");
+            return false; 
+        }
+        return true;
     }
 
     /**
