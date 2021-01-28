@@ -46,7 +46,8 @@ definitions:
   imports:
     type: array
     title: File imports for sub-projects or resource files
-    items: string
+    items: 
+      type: string
     uniqueItems: true
 
   resources:
@@ -78,7 +79,8 @@ definitions:
         title: Availability of this resource during a week
       leave:
         type: array
-        items: string
+        items: 
+          type: string
         uniqueItems: true
     additionalProperties: false
     required: [ resource ]
