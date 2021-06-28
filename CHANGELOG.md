@@ -2,6 +2,9 @@
 
 All notable changes to the `TaskFalcon` extension will be documented in this file.
 
+## 0.8.2
+* Includes TaskFalcon 0.9.10. See [TaskFalcon Release Notes](https://taskfalcon.org/release-notes/index.html).
+
 ## 0.8.1
 * Includes TaskFalcon 0.9.9. See [TaskFalcon Release Notes](https://taskfalcon.org/release-notes/index.html).
 * Fixed a bug with schema validation
