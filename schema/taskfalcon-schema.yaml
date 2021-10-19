@@ -1,8 +1,8 @@
 ---
 "$schema": http://json-schema.org/draft-07/schema#
 "$id": https://taskfalcon.org
-title: TaskFalcon Schema v0.9.8
-description: Validation Schema for TaskFalcon v0.9.8
+title: TaskFalcon Schema v0.9.11
+description: Validation Schema for TaskFalcon v0.9.11
 
 type: object
 properties:
@@ -30,22 +30,53 @@ definitions:
   project:
     type: object
     title: TaskFalcon project definition
-    description: Required project definition
+    description: |
+      Required project definition.
+      See https://taskfalcon.org/doc/config_project/index.html
     properties:
       name:
         type: string
         title: Project name
-        description: The name of the project
+        description: |
+          The name of the project
+          See https://taskfalcon.org/doc/config_project/index.html#name
       start:
         type: string
         title: Start date of the project
+        description: |
+          Sets the first day of the project. All days before this day are considered invalid
+          See https://taskfalcon.org/doc/config_project/index.html#start
         "$ref": "#/definitions/types/date"
+      tracking:
+        title: Project tracking settings
+        description: |
+          Can be one of "auto" or "explicit".
+          See https://taskfalcon.org/doc/config_project/#tracking
+        enum: [ 'auto', 'explicit' ]
+      defaultworkingtime:
+        title: Default Working Time
+        description: |
+          Sets the default time per day for resources to work on tasks, unless configured differently for a resource. 
+          See https://taskfalcon.org/doc/config_project/index.html#defaultworkingtime
+      timeperday:
+        title: Time Per Day
+        description: |
+          Defines the amount of time that defines a business day. The default value of timeperday is 8h.
+          See https://taskfalcon.org/doc/config_project/index.html#timeperday
+      businesshours:
+        title: Business Hours
+        description: |
+          Describes how much time passes for each day of the week.
+          See https://taskfalcon.org/doc/config_project/index.html#businesshours
     additionalProperties: false
     required: [ start ]
 
   imports:
     type: array
-    title: File imports for sub-projects or resource files
+    title: Imports
+    description: |
+      File imports for sub-projects or resource files
+      See https://taskfalcon.org/doc/config_imports/index.html
     items: 
       type: string
     uniqueItems: true
@@ -56,29 +87,51 @@ definitions:
       oneOf:
         - "$ref": "#/definitions/resource"
         - "$ref": "#/definitions/filter"
-    title: Resource definitions for project
+    title: Resources
+    description: |
+      Resource definitions for a project.
+      See https://taskfalcon.org/doc/config_resources/index.html
     additionalProperties: false
     uniqueItems: true
 
   resource:
     type: object
-    title: Resource definitions for project
+    title: Resource
+    description: |
+      Resource definitions for project
+      See https://taskfalcon.org/doc/config_resources/index.html
     properties:
       resource:
         type: [ string, number ]
-        title: Unique identifier of a resource
+        title: Resource-Identifier
+        description: |
+          Unique identifier of a resource
+          See https://taskfalcon.org/doc/config_resources/index.html#id
       name:
         type: string
-        title: Full name of the resource
+        title: Name
+        description: |
+          Full name of the resource
+          See https://taskfalcon.org/doc/config_resources/index.html#name
       dailymax:
         type: string
-        title: Max. availability of this resource per day
+        title: Daily Max
+        description: |
+          Max. availability of this resource per day
+          See https://taskfalcon.org/doc/config_resources/index.html#dailymax
         "$ref": "#/definitions/types/duration"
       workingtime:
         type: string
-        title: Availability of this resource during a week
+        title: Working Time
+        description: |
+          Configures when resources/workers are available for working on tasks during the week
+          See https://taskfalcon.org/doc/config_resources/index.html#workingtime
       leave:
         type: array
+        title: Leave
+        description: |
+          In a leave section you can tell the scheduler when employees are on leave
+          See https://taskfalcon.org/doc/config_resources/index.html#leave
         items: 
           type: string
         uniqueItems: true
@@ -88,10 +141,16 @@ definitions:
   filter:
     type: object
     title: Artificial resource filters
+    description: |
+      A resource filter can be used to limit the time a resource can spend on tasks
+      See https://taskfalcon.org/doc/config_resources/index.html#filter
     properties:
       filter:
         type: [ string, number ]
-        title: Unique identifier of a resource
+        title: Filter
+        description: |
+          Unique identifier of a resource filter
+          See https://taskfalcon.org/doc/config_resources/index.html#filter
       name:
         "$ref": "#/definitions/resource/properties/name"
       dailymax:
@@ -101,9 +160,29 @@ definitions:
     additionalProperties: false
     required: [ filter ]
     
+  bookings:
+    type: object
+    title: Bookings
+    description: |
+      Booking records for explicit work assignments
+      See https://taskfalcon.org/doc/config_updates/#bookings
+    uniqueItems: true
+    additionalProperties: true
+    patternProperties:
+      "^.*$":
+        type: string
+        title: Resource Efforts
+        description: |
+          Booked efforts per resource. E.g.:
+            dev1: 10d
+            dev2: 3d
+          See https://taskfalcon.org/doc/config_updates/#bookings
+        "$ref": "#/definitions/types/duration"
+
   tasks:
     type: array
     title: Tasks, Milestones and Groups for project
+    description: See https://taskfalcon.org/doc/config_tasks/index.html
     items:
       oneOf:
         - "$ref": "#/definitions/task"
@@ -112,72 +191,236 @@ definitions:
     additionalProperties: false
     uniqueItems: true
 
+  taskUpdates:
+    type: array
+    title: Tasks, Milestones and Groups for project
+    description: See https://taskfalcon.org/doc/config_tasks/index.html
+    items:
+      oneOf:
+        - "$ref": "#/definitions/taskUpdate"
+        - "$ref": "#/definitions/groupUpdate"
+        - "$ref": "#/definitions/milestone"
+    additionalProperties: false
+    uniqueItems: true
+
+  taskBase:
+    type: object
+    title: Tasks for project
+    properties:
+      active:
+        type: boolean
+        title: Active
+        description: |
+          An non active task will neither be considered by the scheduler, nor show up in the charts
+          See https://taskfalcon.org/doc/config_tasks/#active
+      assign:
+        type: string
+        title: Assign
+        description: |
+          Assigned resources (employees) who will work on this tasks
+          See https://taskfalcon.org/doc/config_tasks/#assign
+      bookings:
+        "$ref": "#/definitions/bookings"
+      # buffer:
+      #   title: Buffer
+      #   description: |
+      #     Additional buffer time to compensate uncertainty
+      #     See https://taskfalcon.org/doc/config_tasks/#buffer
+      #   "$ref": "#/definitions/types/duration"
+      dailymax:
+        type: string
+        title: Daily Max
+        description: |
+          Maximum amount of time all resources (combined) are allowed to work on this task per day
+          See https://taskfalcon.org/doc/config_tasks/index.html#work-limits-dailymax-weeklymax-monthlymax
+        "$ref": "#/definitions/types/duration"
+      depends:
+        type: string
+        title: Depends
+        description: |
+          Dependency on another task/milestone/group.
+          See https://taskfalcon.org/doc/config_tasks/index.html#depends
+      efforts:
+        type: string
+        title: Efforts
+        description: |
+          Cumulated amount of time resources (employees) need to spend working on this task
+          See https://taskfalcon.org/doc/config_tasks/index.html#efforts
+        "$ref": "#/definitions/types/duration"
+      effortsleft:
+        type: string
+        title: Efforts Left
+        description: |
+          Amount of remaining efforts counted from the day of the current update
+          See https://taskfalcon.org/doc/config_tasks/index.html#effortsleft
+        "$ref": "#/definitions/types/duration"
+      end:
+        type: string
+        title: End
+        description: |
+          End date of the task
+          See https://taskfalcon.org/doc/config_tasks/index.html#end
+        "$ref": "#/definitions/types/date"
+      length:
+        type: string
+        title: Length
+        description: |
+          Length of the task in business days/hours (no efforts)
+          See https://taskfalcon.org/doc/config_tasks/index.html#length
+        "$ref": "#/definitions/types/duration"
+      lengthleft:
+        type: string
+        title: Length Left
+        description: |
+          Amount of remaining time counted from the day of the current update
+          See https://taskfalcon.org/doc/config_tasks/index.html#lengthleft
+        "$ref": "#/definitions/types/duration"
+      locked:
+        type: boolean
+        title: Locked
+        description: |
+          A locked tasks will not allow the scheduler to change the previously calculated start/end date due to changes in dependencies
+          See https://taskfalcon.org/doc/config_tasks/index.html#locked
+      name:
+        type: string
+        title: Name
+        description: |
+          Display name of this task. Has no effect on scheduling
+          See https://taskfalcon.org/doc/config_tasks/index.html#name
+      monthlymax:
+        type: string
+        title: Monthly Max
+        description: |
+          Maximum amount of time all resources (combined) are allowed to work on this task per month
+          See https://taskfalcon.org/doc/config_tasks/index.html#work-limits-dailymax-weeklymax-monthlymax
+        "$ref": "#/definitions/types/duration"
+      priority:
+        type: number
+        title: Priority
+        description: |
+          Scheduling priority of this task. The higher the number, the more likely it will be given required resources
+          See https://taskfalcon.org/doc/config_tasks/index.html#priority
+      reschedule:
+        type: boolean
+        title: Reschedule
+        description: |
+          Will unlock a locked task for a single task, so that dates will be rescheduled without breaking the task schedule
+          See https://taskfalcon.org/doc/config_updates/#reschedule
+      start:
+        type: string
+        title: Start
+        description: |
+          Start date of the task
+          See https://taskfalcon.org/doc/config_tasks/index.html#start
+        "$ref": "#/definitions/types/date"
+      task:
+        type: [ string, number ]
+        title: ID of this task
+        description: |
+          Identifier of this task. All later references will use this identifier
+          See https://taskfalcon.org/doc/config_tasks/index.html#taskmilestonegroup
+      tracking:
+        title: Project tracking settings
+        description: |
+          Can be one of "auto" or "explicit".
+          See https://taskfalcon.org/doc/config_tasks/#tracking
+        enum: [ 'auto', 'explicit' ]
+      weeklymax:
+        type: string
+        title: Weekly Max
+        description: |
+          Maximum amount of time all resources (combined) are allowed to work on this task per week
+          See https://taskfalcon.org/doc/config_tasks/index.html#work-limits-dailymax-weeklymax-monthlymax
+        "$ref": "#/definitions/types/duration"
+
   task:
     type: object
     title: Tasks for project
     properties:
-      task:
-        type: [ string, number ]
-        title: ID of this task
-      name:
-        type: string
-        title: Display name of this task
-      priority:
-        type: number
-        title: Scheduling priority of this task. The higher the number, the more likely it will be given required resources
-      efforts:
-        type: string
-        title: Cumulated amount of time resources (employees) need to spend working on this task
-        "$ref": "#/definitions/types/duration"
-      effortsleft:
-        type: string
-        title: Amount of remaining efforts counted from the day of the current update
-        "$ref": "#/definitions/types/duration"
-      length:
-        type: string
-        title: Length of the task in business days/hours (no efforts)
-        "$ref": "#/definitions/types/duration"
-      lengthleft:
-        type: string
-        title: Amount of remaining time counted from the day of the current update
-        "$ref": "#/definitions/types/duration"
-      assign:
-        type: string
-        title: Assigned resources (employees) who will work on this tasks
-      depends:
-        type: string
-        title: Dependency on another task/milestone/group.
-      start:
-        type: string
-        title: Start date of the task
-        "$ref": "#/definitions/types/date"
-      end:
-        type: string
-        title: End date of the task
-        "$ref": "#/definitions/types/date"
-      dailymax:
-        type: string
-        title: Maximum amount of time all resources (combined) are allowed to work on this task per day
-        "$ref": "#/definitions/types/duration"
-      weeklymax:
-        type: string
-        title: Maximum amount of time all resources (combined) are allowed to work on this task per week
-        "$ref": "#/definitions/types/duration"
-      monthlymax:
-        type: string
-        title: Maximum amount of time all resources (combined) are allowed to work on this task per month
-        "$ref": "#/definitions/types/duration"
-      locked:
-        type: boolean
-        title: A locked tasks will not allow the scheduler to change the previously calculated start/end date due to changes in dependencies
       active:
-        type: boolean
-        title: An non active task will neither be considered by the scheduler, nor show up in the charts
+        "$ref": "#/definitions/taskBase/properties/active"
+      assign:
+        "$ref": "#/definitions/taskBase/properties/assign"
+      # buffer:
+      #   "$ref": "#/definitions/taskBase/properties/buffer"
+      dailymax:
+        "$ref": "#/definitions/taskBase/properties/dailymax"
+      depends:
+        "$ref": "#/definitions/taskBase/properties/depends"
+      efforts:
+        "$ref": "#/definitions/taskBase/properties/efforts"
+      end:
+        "$ref": "#/definitions/taskBase/properties/end"
+      length:
+        "$ref": "#/definitions/taskBase/properties/length"
+      locked:
+        "$ref": "#/definitions/taskBase/properties/locked"
+      monthlymax:
+        "$ref": "#/definitions/taskBase/properties/monthlymax"
+      name:
+        "$ref": "#/definitions/taskBase/properties/name"
+      priority:
+        "$ref": "#/definitions/taskBase/properties/priority"
+      start:
+        "$ref": "#/definitions/taskBase/properties/start"
+      task:
+        "$ref": "#/definitions/taskBase/properties/task"
+      tracking:
+        "$ref": "#/definitions/taskBase/properties/tracking"
+      weeklymax:
+        "$ref": "#/definitions/taskBase/properties/weeklymax"
     additionalProperties: false
     required: [ task ]
     dependencies: 
       efforts: [ assign ]
       assign: [ efforts ]
+
+  taskUpdate:
+    type: object
+    title: Tasks for project
+    properties:
+      active:
+        "$ref": "#/definitions/taskBase/properties/active"
+      assign:
+        "$ref": "#/definitions/taskBase/properties/assign"
+      bookings:
+        "$ref": "#/definitions/taskBase/properties/bookings"
+      # buffer:
+      #   "$ref": "#/definitions/taskBase/properties/buffer"
+      dailymax:
+        "$ref": "#/definitions/taskBase/properties/dailymax"
+      depends:
+        "$ref": "#/definitions/taskBase/properties/depends"
+      efforts:
+        "$ref": "#/definitions/taskBase/properties/efforts"
+      effortsleft:
+        "$ref": "#/definitions/taskBase/properties/effortsleft"
+      end:
+        "$ref": "#/definitions/taskBase/properties/end"
+      length:
+        "$ref": "#/definitions/taskBase/properties/length"
+      lengthleft:
+        "$ref": "#/definitions/taskBase/properties/lengthleft"
+      locked:
+        "$ref": "#/definitions/taskBase/properties/locked"
+      monthlymax:
+        "$ref": "#/definitions/taskBase/properties/monthlymax"
+      name:
+        "$ref": "#/definitions/taskBase/properties/name"
+      priority:
+        "$ref": "#/definitions/taskBase/properties/priority"
+      reschedule:
+        "$ref": "#/definitions/taskBase/properties/reschedule"
+      start:
+        "$ref": "#/definitions/taskBase/properties/start"
+      task:
+        "$ref": "#/definitions/taskBase/properties/task"
+      tracking:
+        "$ref": "#/definitions/taskBase/properties/tracking"
+      weeklymax:
+        "$ref": "#/definitions/taskBase/properties/weeklymax"
+    additionalProperties: false
+    required: [ task ]
 
   group:
     type: object
@@ -192,15 +435,37 @@ definitions:
         type: string
         title: Display name of this group
       priority:
-        "$ref": "#/definitions/task/properties/priority"
+        "$ref": "#/definitions/taskBase/properties/priority"
       depends:
-        "$ref": "#/definitions/task/properties/depends"
+        "$ref": "#/definitions/taskBase/properties/depends"
       start:
-        "$ref": "#/definitions/task/properties/start"
+        "$ref": "#/definitions/taskBase/properties/start"
       end:
-        "$ref": "#/definitions/task/properties/end"
+        "$ref": "#/definitions/taskBase/properties/end"
+      tracking:
+        "$ref": "#/definitions/taskBase/properties/tracking"
     additionalProperties: false
     required: [ group, tasks ]
+
+  groupUpdate:
+    type: object
+    title: Groups for tasks
+    properties:
+      group:
+        "$ref": "#/definitions/group/properties/group"
+      name:
+        "$ref": "#/definitions/group/properties/name"
+      priority:
+        "$ref": "#/definitions/taskBase/properties/priority"
+      depends:
+        "$ref": "#/definitions/taskBase/properties/depends"
+      start:
+        "$ref": "#/definitions/taskBase/properties/start"
+      end:
+        "$ref": "#/definitions/taskBase/properties/end"
+      tracking:
+        "$ref": "#/definitions/taskBase/properties/tracking"
+    additionalProperties: false
 
   milestone:
     type: object
@@ -250,7 +515,7 @@ definitions:
       resources:
         "$ref": "#/definitions/resources"
       tasks:
-        "$ref": "#/definitions/tasks"
+        "$ref": "#/definitions/taskUpdates"
     additionalProperties: false
     required: [ update ]
     anyOf:

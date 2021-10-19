@@ -14,6 +14,10 @@ type PreviewConfig = {
     showEffortsLeft: boolean;
     chart: 'gantt' | 'gantt-with-resources' | 'resources' | 'resources-with-tasks';
     prefix: string;
+    today: string;
+    noUpdates: boolean;
+    noUpdatesAfterToday: boolean;
+    scale: '' | 'day' | 'week' | 'month' | 'year';
 };
 
 const defaultConfig: PreviewConfig = {
@@ -25,6 +29,10 @@ const defaultConfig: PreviewConfig = {
     showEnds: false,
     chart: 'gantt',
     prefix: '',
+    today: '',
+    scale: '',
+    noUpdates: false,
+    noUpdatesAfterToday: false
 };
 
 export class TaskFalconProject implements vscode.WebviewViewProvider {
@@ -245,7 +253,7 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
         try {
             this.document = await vscode.workspace.openTextDocument(this.document.fileName);
         } catch (e) {
-            vscode.window.showErrorMessage(e);
+            vscode.window.showErrorMessage(e as any);
         }
     }
 
@@ -388,10 +396,22 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
         if (this.previewConfig.showEfforts) { parameters.push("-show-efforts"); }
         if (this.previewConfig.showEffortsLeft) { parameters.push("-show-effortsleft"); }
         if (this.previewConfig.showClosedTasks) { parameters.push("-show-closed-tasks"); }
+        if (this.previewConfig.noUpdates) { parameters.push("-no-updates"); }
+        if (this.previewConfig.noUpdatesAfterToday) { parameters.push("-no-updates-after-today"); }
+
+        if (this.previewConfig.today.trim() !== '') { 
+            parameters.push("-today"); 
+            parameters.push(this.previewConfig.today); 
+        }
 
         if (this.previewConfig.prefix.trim() !== '') { 
             parameters.push("-prefix"); 
             parameters.push(this.previewConfig.prefix); 
+        }
+
+        if (this.previewConfig.scale.trim() !== '') { 
+            parameters.push("-scale"); 
+            parameters.push(this.previewConfig.scale); 
         }
 
         parameters.push("-export-charts");
@@ -430,8 +450,8 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
             let imageUri = vscode.Uri.file(`${basename}.${this.previewConfig.chart}.png`);
             this.showPreview(imageUri, undefined);
         } catch (e) {
-            output = e;
-            this.showPreview(undefined, e);
+            output = e as any;
+            this.showPreview(undefined, output);
         }
 
         // Show output in console

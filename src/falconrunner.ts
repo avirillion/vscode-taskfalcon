@@ -1,4 +1,4 @@
-import { exec, spawn, ChildProcess } from 'child_process';
+import { exec, ChildProcess } from 'child_process';
 
 export class TaskFalconRunner {
     private cancelled: boolean = false;

@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://taskfalcon.org",
-  "title": "TaskFalcon Schema v0.9.8",
-  "description": "Validation Schema for TaskFalcon v0.9.8",
+  "title": "TaskFalcon Schema v0.9.11",
+  "description": "Validation Schema for TaskFalcon v0.9.11",
   "type": "object",
   "properties": {
     "project": {
@@ -41,17 +41,38 @@
     "project": {
       "type": "object",
       "title": "TaskFalcon project definition",
-      "description": "Required project definition",
+      "description": "Required project definition.\nSee https://taskfalcon.org/doc/config_project/index.html\n",
       "properties": {
         "name": {
           "type": "string",
           "title": "Project name",
-          "description": "The name of the project"
+          "description": "The name of the project\nSee https://taskfalcon.org/doc/config_project/index.html#name\n"
         },
         "start": {
           "type": "string",
           "title": "Start date of the project",
+          "description": "Sets the first day of the project. All days before this day are considered invalid\nSee https://taskfalcon.org/doc/config_project/index.html#start\n",
           "$ref": "#/definitions/types/date"
+        },
+        "tracking": {
+          "title": "Project tracking settings",
+          "description": "Can be one of \"auto\" or \"explicit\".\nSee https://taskfalcon.org/doc/config_project/#tracking\n",
+          "enum": [
+            "auto",
+            "explicit"
+          ]
+        },
+        "defaultworkingtime": {
+          "title": "Default Working Time",
+          "description": "Sets the default time per day for resources to work on tasks, unless configured differently for a resource. \nSee https://taskfalcon.org/doc/config_project/index.html#defaultworkingtime\n"
+        },
+        "timeperday": {
+          "title": "Time Per Day",
+          "description": "Defines the amount of time that defines a business day. The default value of timeperday is 8h.\nSee https://taskfalcon.org/doc/config_project/index.html#timeperday\n"
+        },
+        "businesshours": {
+          "title": "Business Hours",
+          "description": "Describes how much time passes for each day of the week.\nSee https://taskfalcon.org/doc/config_project/index.html#businesshours\n"
         }
       },
       "additionalProperties": false,
@@ -61,7 +82,8 @@
     },
     "imports": {
       "type": "array",
-      "title": "File imports for sub-projects or resource files",
+      "title": "Imports",
+      "description": "File imports for sub-projects or resource files\nSee https://taskfalcon.org/doc/config_imports/index.html\n",
       "items": {
         "type": "string"
       },
@@ -79,36 +101,44 @@
           }
         ]
       },
-      "title": "Resource definitions for project",
+      "title": "Resources",
+      "description": "Resource definitions for a project.\nSee https://taskfalcon.org/doc/config_resources/index.html\n",
       "additionalProperties": false,
       "uniqueItems": true
     },
     "resource": {
       "type": "object",
-      "title": "Resource definitions for project",
+      "title": "Resource",
+      "description": "Resource definitions for project\nSee https://taskfalcon.org/doc/config_resources/index.html\n",
       "properties": {
         "resource": {
           "type": [
             "string",
             "number"
           ],
-          "title": "Unique identifier of a resource"
+          "title": "Resource-Identifier",
+          "description": "Unique identifier of a resource\nSee https://taskfalcon.org/doc/config_resources/index.html#id\n"
         },
         "name": {
           "type": "string",
-          "title": "Full name of the resource"
+          "title": "Name",
+          "description": "Full name of the resource\nSee https://taskfalcon.org/doc/config_resources/index.html#name\n"
         },
         "dailymax": {
           "type": "string",
-          "title": "Max. availability of this resource per day",
+          "title": "Daily Max",
+          "description": "Max. availability of this resource per day\nSee https://taskfalcon.org/doc/config_resources/index.html#dailymax\n",
           "$ref": "#/definitions/types/duration"
         },
         "workingtime": {
           "type": "string",
-          "title": "Availability of this resource during a week"
+          "title": "Working Time",
+          "description": "Configures when resources/workers are available for working on tasks during the week\nSee https://taskfalcon.org/doc/config_resources/index.html#workingtime\n"
         },
         "leave": {
           "type": "array",
+          "title": "Leave",
+          "description": "In a leave section you can tell the scheduler when employees are on leave\nSee https://taskfalcon.org/doc/config_resources/index.html#leave\n",
           "items": {
             "type": "string"
           },
@@ -123,13 +153,15 @@
     "filter": {
       "type": "object",
       "title": "Artificial resource filters",
+      "description": "A resource filter can be used to limit the time a resource can spend on tasks\nSee https://taskfalcon.org/doc/config_resources/index.html#filter\n",
       "properties": {
         "filter": {
           "type": [
             "string",
             "number"
           ],
-          "title": "Unique identifier of a resource"
+          "title": "Filter",
+          "description": "Unique identifier of a resource filter\nSee https://taskfalcon.org/doc/config_resources/index.html#filter\n"
         },
         "name": {
           "$ref": "#/definitions/resource/properties/name"
@@ -146,9 +178,25 @@
         "filter"
       ]
     },
+    "bookings": {
+      "type": "object",
+      "title": "Bookings",
+      "description": "Booking records for explicit work assignments\nSee https://taskfalcon.org/doc/config_updates/#bookings\n",
+      "uniqueItems": true,
+      "additionalProperties": true,
+      "patternProperties": {
+        "^.*$": {
+          "type": "string",
+          "title": "Resource Efforts",
+          "description": "Booked efforts per resource. E.g.:\n  dev1: 10d\n  dev2: 3d\nSee https://taskfalcon.org/doc/config_updates/#bookings\n",
+          "$ref": "#/definitions/types/duration"
+        }
+      }
+    },
     "tasks": {
       "type": "array",
       "title": "Tasks, Milestones and Groups for project",
+      "description": "See https://taskfalcon.org/doc/config_tasks/index.html",
       "items": {
         "oneOf": [
           {
@@ -165,85 +213,188 @@
       "additionalProperties": false,
       "uniqueItems": true
     },
-    "task": {
+    "taskUpdates": {
+      "type": "array",
+      "title": "Tasks, Milestones and Groups for project",
+      "description": "See https://taskfalcon.org/doc/config_tasks/index.html",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/definitions/taskUpdate"
+          },
+          {
+            "$ref": "#/definitions/groupUpdate"
+          },
+          {
+            "$ref": "#/definitions/milestone"
+          }
+        ]
+      },
+      "additionalProperties": false,
+      "uniqueItems": true
+    },
+    "taskBase": {
       "type": "object",
       "title": "Tasks for project",
       "properties": {
+        "active": {
+          "type": "boolean",
+          "title": "Active",
+          "description": "An non active task will neither be considered by the scheduler, nor show up in the charts\nSee https://taskfalcon.org/doc/config_tasks/#active\n"
+        },
+        "assign": {
+          "type": "string",
+          "title": "Assign",
+          "description": "Assigned resources (employees) who will work on this tasks\nSee https://taskfalcon.org/doc/config_tasks/#assign\n"
+        },
+        "bookings": {
+          "$ref": "#/definitions/bookings"
+        },
+        "dailymax": {
+          "type": "string",
+          "title": "Daily Max",
+          "description": "Maximum amount of time all resources (combined) are allowed to work on this task per day\nSee https://taskfalcon.org/doc/config_tasks/index.html#work-limits-dailymax-weeklymax-monthlymax\n",
+          "$ref": "#/definitions/types/duration"
+        },
+        "depends": {
+          "type": "string",
+          "title": "Depends",
+          "description": "Dependency on another task/milestone/group.\nSee https://taskfalcon.org/doc/config_tasks/index.html#depends\n"
+        },
+        "efforts": {
+          "type": "string",
+          "title": "Efforts",
+          "description": "Cumulated amount of time resources (employees) need to spend working on this task\nSee https://taskfalcon.org/doc/config_tasks/index.html#efforts\n",
+          "$ref": "#/definitions/types/duration"
+        },
+        "effortsleft": {
+          "type": "string",
+          "title": "Efforts Left",
+          "description": "Amount of remaining efforts counted from the day of the current update\nSee https://taskfalcon.org/doc/config_tasks/index.html#effortsleft\n",
+          "$ref": "#/definitions/types/duration"
+        },
+        "end": {
+          "type": "string",
+          "title": "End",
+          "description": "End date of the task\nSee https://taskfalcon.org/doc/config_tasks/index.html#end\n",
+          "$ref": "#/definitions/types/date"
+        },
+        "length": {
+          "type": "string",
+          "title": "Length",
+          "description": "Length of the task in business days/hours (no efforts)\nSee https://taskfalcon.org/doc/config_tasks/index.html#length\n",
+          "$ref": "#/definitions/types/duration"
+        },
+        "lengthleft": {
+          "type": "string",
+          "title": "Length Left",
+          "description": "Amount of remaining time counted from the day of the current update\nSee https://taskfalcon.org/doc/config_tasks/index.html#lengthleft\n",
+          "$ref": "#/definitions/types/duration"
+        },
+        "locked": {
+          "type": "boolean",
+          "title": "Locked",
+          "description": "A locked tasks will not allow the scheduler to change the previously calculated start/end date due to changes in dependencies\nSee https://taskfalcon.org/doc/config_tasks/index.html#locked\n"
+        },
+        "name": {
+          "type": "string",
+          "title": "Name",
+          "description": "Display name of this task. Has no effect on scheduling\nSee https://taskfalcon.org/doc/config_tasks/index.html#name\n"
+        },
+        "monthlymax": {
+          "type": "string",
+          "title": "Monthly Max",
+          "description": "Maximum amount of time all resources (combined) are allowed to work on this task per month\nSee https://taskfalcon.org/doc/config_tasks/index.html#work-limits-dailymax-weeklymax-monthlymax\n",
+          "$ref": "#/definitions/types/duration"
+        },
+        "priority": {
+          "type": "number",
+          "title": "Priority",
+          "description": "Scheduling priority of this task. The higher the number, the more likely it will be given required resources\nSee https://taskfalcon.org/doc/config_tasks/index.html#priority\n"
+        },
+        "reschedule": {
+          "type": "boolean",
+          "title": "Reschedule",
+          "description": "Will unlock a locked task for a single task, so that dates will be rescheduled without breaking the task schedule\nSee https://taskfalcon.org/doc/config_updates/#reschedule\n"
+        },
+        "start": {
+          "type": "string",
+          "title": "Start",
+          "description": "Start date of the task\nSee https://taskfalcon.org/doc/config_tasks/index.html#start\n",
+          "$ref": "#/definitions/types/date"
+        },
         "task": {
           "type": [
             "string",
             "number"
           ],
-          "title": "ID of this task"
+          "title": "ID of this task",
+          "description": "Identifier of this task. All later references will use this identifier\nSee https://taskfalcon.org/doc/config_tasks/index.html#taskmilestonegroup\n"
         },
-        "name": {
-          "type": "string",
-          "title": "Display name of this task"
-        },
-        "priority": {
-          "type": "number",
-          "title": "Scheduling priority of this task. The higher the number, the more likely it will be given required resources"
-        },
-        "efforts": {
-          "type": "string",
-          "title": "Cumulated amount of time resources (employees) need to spend working on this task",
-          "$ref": "#/definitions/types/duration"
-        },
-        "effortsleft": {
-          "type": "string",
-          "title": "Amount of remaining efforts counted from the day of the current update",
-          "$ref": "#/definitions/types/duration"
-        },
-        "length": {
-          "type": "string",
-          "title": "Length of the task in business days/hours (no efforts)",
-          "$ref": "#/definitions/types/duration"
-        },
-        "lengthleft": {
-          "type": "string",
-          "title": "Amount of remaining time counted from the day of the current update",
-          "$ref": "#/definitions/types/duration"
-        },
-        "assign": {
-          "type": "string",
-          "title": "Assigned resources (employees) who will work on this tasks"
-        },
-        "depends": {
-          "type": "string",
-          "title": "Dependency on another task/milestone/group."
-        },
-        "start": {
-          "type": "string",
-          "title": "Start date of the task",
-          "$ref": "#/definitions/types/date"
-        },
-        "end": {
-          "type": "string",
-          "title": "End date of the task",
-          "$ref": "#/definitions/types/date"
-        },
-        "dailymax": {
-          "type": "string",
-          "title": "Maximum amount of time all resources (combined) are allowed to work on this task per day",
-          "$ref": "#/definitions/types/duration"
+        "tracking": {
+          "title": "Project tracking settings",
+          "description": "Can be one of \"auto\" or \"explicit\".\nSee https://taskfalcon.org/doc/config_tasks/#tracking\n",
+          "enum": [
+            "auto",
+            "explicit"
+          ]
         },
         "weeklymax": {
           "type": "string",
-          "title": "Maximum amount of time all resources (combined) are allowed to work on this task per week",
+          "title": "Weekly Max",
+          "description": "Maximum amount of time all resources (combined) are allowed to work on this task per week\nSee https://taskfalcon.org/doc/config_tasks/index.html#work-limits-dailymax-weeklymax-monthlymax\n",
           "$ref": "#/definitions/types/duration"
+        }
+      }
+    },
+    "task": {
+      "type": "object",
+      "title": "Tasks for project",
+      "properties": {
+        "active": {
+          "$ref": "#/definitions/taskBase/properties/active"
         },
-        "monthlymax": {
-          "type": "string",
-          "title": "Maximum amount of time all resources (combined) are allowed to work on this task per month",
-          "$ref": "#/definitions/types/duration"
+        "assign": {
+          "$ref": "#/definitions/taskBase/properties/assign"
+        },
+        "dailymax": {
+          "$ref": "#/definitions/taskBase/properties/dailymax"
+        },
+        "depends": {
+          "$ref": "#/definitions/taskBase/properties/depends"
+        },
+        "efforts": {
+          "$ref": "#/definitions/taskBase/properties/efforts"
+        },
+        "end": {
+          "$ref": "#/definitions/taskBase/properties/end"
+        },
+        "length": {
+          "$ref": "#/definitions/taskBase/properties/length"
         },
         "locked": {
-          "type": "boolean",
-          "title": "A locked tasks will not allow the scheduler to change the previously calculated start/end date due to changes in dependencies"
+          "$ref": "#/definitions/taskBase/properties/locked"
         },
-        "active": {
-          "type": "boolean",
-          "title": "An non active task will neither be considered by the scheduler, nor show up in the charts"
+        "monthlymax": {
+          "$ref": "#/definitions/taskBase/properties/monthlymax"
+        },
+        "name": {
+          "$ref": "#/definitions/taskBase/properties/name"
+        },
+        "priority": {
+          "$ref": "#/definitions/taskBase/properties/priority"
+        },
+        "start": {
+          "$ref": "#/definitions/taskBase/properties/start"
+        },
+        "task": {
+          "$ref": "#/definitions/taskBase/properties/task"
+        },
+        "tracking": {
+          "$ref": "#/definitions/taskBase/properties/tracking"
+        },
+        "weeklymax": {
+          "$ref": "#/definitions/taskBase/properties/weeklymax"
         }
       },
       "additionalProperties": false,
@@ -258,6 +409,73 @@
           "efforts"
         ]
       }
+    },
+    "taskUpdate": {
+      "type": "object",
+      "title": "Tasks for project",
+      "properties": {
+        "active": {
+          "$ref": "#/definitions/taskBase/properties/active"
+        },
+        "assign": {
+          "$ref": "#/definitions/taskBase/properties/assign"
+        },
+        "bookings": {
+          "$ref": "#/definitions/taskBase/properties/bookings"
+        },
+        "dailymax": {
+          "$ref": "#/definitions/taskBase/properties/dailymax"
+        },
+        "depends": {
+          "$ref": "#/definitions/taskBase/properties/depends"
+        },
+        "efforts": {
+          "$ref": "#/definitions/taskBase/properties/efforts"
+        },
+        "effortsleft": {
+          "$ref": "#/definitions/taskBase/properties/effortsleft"
+        },
+        "end": {
+          "$ref": "#/definitions/taskBase/properties/end"
+        },
+        "length": {
+          "$ref": "#/definitions/taskBase/properties/length"
+        },
+        "lengthleft": {
+          "$ref": "#/definitions/taskBase/properties/lengthleft"
+        },
+        "locked": {
+          "$ref": "#/definitions/taskBase/properties/locked"
+        },
+        "monthlymax": {
+          "$ref": "#/definitions/taskBase/properties/monthlymax"
+        },
+        "name": {
+          "$ref": "#/definitions/taskBase/properties/name"
+        },
+        "priority": {
+          "$ref": "#/definitions/taskBase/properties/priority"
+        },
+        "reschedule": {
+          "$ref": "#/definitions/taskBase/properties/reschedule"
+        },
+        "start": {
+          "$ref": "#/definitions/taskBase/properties/start"
+        },
+        "task": {
+          "$ref": "#/definitions/taskBase/properties/task"
+        },
+        "tracking": {
+          "$ref": "#/definitions/taskBase/properties/tracking"
+        },
+        "weeklymax": {
+          "$ref": "#/definitions/taskBase/properties/weeklymax"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "task"
+      ]
     },
     "group": {
       "type": "object",
@@ -278,16 +496,19 @@
           "title": "Display name of this group"
         },
         "priority": {
-          "$ref": "#/definitions/task/properties/priority"
+          "$ref": "#/definitions/taskBase/properties/priority"
         },
         "depends": {
-          "$ref": "#/definitions/task/properties/depends"
+          "$ref": "#/definitions/taskBase/properties/depends"
         },
         "start": {
-          "$ref": "#/definitions/task/properties/start"
+          "$ref": "#/definitions/taskBase/properties/start"
         },
         "end": {
-          "$ref": "#/definitions/task/properties/end"
+          "$ref": "#/definitions/taskBase/properties/end"
+        },
+        "tracking": {
+          "$ref": "#/definitions/taskBase/properties/tracking"
         }
       },
       "additionalProperties": false,
@@ -295,6 +516,34 @@
         "group",
         "tasks"
       ]
+    },
+    "groupUpdate": {
+      "type": "object",
+      "title": "Groups for tasks",
+      "properties": {
+        "group": {
+          "$ref": "#/definitions/group/properties/group"
+        },
+        "name": {
+          "$ref": "#/definitions/group/properties/name"
+        },
+        "priority": {
+          "$ref": "#/definitions/taskBase/properties/priority"
+        },
+        "depends": {
+          "$ref": "#/definitions/taskBase/properties/depends"
+        },
+        "start": {
+          "$ref": "#/definitions/taskBase/properties/start"
+        },
+        "end": {
+          "$ref": "#/definitions/taskBase/properties/end"
+        },
+        "tracking": {
+          "$ref": "#/definitions/taskBase/properties/tracking"
+        }
+      },
+      "additionalProperties": false
     },
     "milestone": {
       "type": "object",
@@ -366,7 +615,7 @@
           "$ref": "#/definitions/resources"
         },
         "tasks": {
-          "$ref": "#/definitions/tasks"
+          "$ref": "#/definitions/taskUpdates"
         }
       },
       "additionalProperties": false,

@@ -30,6 +30,19 @@
         </select><br>
     </div>
     <input type="text" class="formElement" name="prefix" placeholder="Render Task Prefix (Enter to submit)">
+    <div class="group">
+        Display Scale:<br>
+        <select class="formElement" name="scale" size="4">
+            <option value="" selected>Auto</option>
+            <option value="day">Days</option>
+            <option value="week">Weeks</option>
+            <option value="month">Months</option>
+            <option value="year">Years</option>
+        </select><br>
+    </div>
+    <input type="text" class="formElement" name="today" placeholder="Today's date (YYYY-MM-DD)">
+    <input class="formElement" type="checkbox" name="noUpdates">Skip updates<br>
+    <input class="formElement" type="checkbox" name="noUpdatesAfterToday">Only run updates up to today<br>
     <button class="formElement button" name="closeProject">Close Project</button><br>
     <!--
     <button class="formElement button" name="renderProject">Render Project</button>
