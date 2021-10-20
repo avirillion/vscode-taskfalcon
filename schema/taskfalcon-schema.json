@@ -38,7 +38,7 @@
     }
   ],
   "definitions": {
-    "project": {
+    "projectBase": {
       "type": "object",
       "title": "TaskFalcon project definition",
       "description": "Required project definition.\nSee https://taskfalcon.org/doc/config_project/index.html\n",
@@ -74,11 +74,62 @@
           "title": "Business Hours",
           "description": "Describes how much time passes for each day of the week.\nSee https://taskfalcon.org/doc/config_project/index.html#businesshours\n"
         }
+      }
+    },
+    "project": {
+      "type": "object",
+      "title": "TaskFalcon project definition",
+      "description": "Required project definition.\nSee https://taskfalcon.org/doc/config_project/index.html\n",
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/projectBase/properties/name"
+        },
+        "start": {
+          "$ref": "#/definitions/projectBase/properties/start"
+        },
+        "tracking": {
+          "$ref": "#/definitions/projectBase/properties/tracking"
+        },
+        "defaultworkingtime": {
+          "$ref": "#/definitions/projectBase/properties/defaultworkingtime"
+        },
+        "timeperday": {
+          "$ref": "#/definitions/projectBase/properties/timeperday"
+        },
+        "businesshours": {
+          "$ref": "#/definitions/projectBase/properties/businesshours"
+        }
       },
-      "additionalProperties": false,
       "required": [
         "start"
-      ]
+      ],
+      "additionalProperties": false
+    },
+    "projectUpdate": {
+      "type": "object",
+      "title": "TaskFalcon project update definition",
+      "description": "Required project definition.\nSee https://taskfalcon.org/doc/config_project/index.html\n",
+      "properties": {
+        "name": {
+          "$ref": "#/definitions/projectBase/properties/name"
+        },
+        "start": {
+          "$ref": "#/definitions/projectBase/properties/start"
+        },
+        "tracking": {
+          "$ref": "#/definitions/projectBase/properties/tracking"
+        },
+        "defaultworkingtime": {
+          "$ref": "#/definitions/projectBase/properties/defaultworkingtime"
+        },
+        "timeperday": {
+          "$ref": "#/definitions/projectBase/properties/timeperday"
+        },
+        "businesshours": {
+          "$ref": "#/definitions/projectBase/properties/businesshours"
+        }
+      },
+      "additionalProperties": false
     },
     "imports": {
       "type": "array",
@@ -609,7 +660,7 @@
           "$ref": "#/definitions/types/date"
         },
         "project": {
-          "$ref": "#/definitions/project"
+          "$ref": "#/definitions/projectUpdates"
         },
         "resources": {
           "$ref": "#/definitions/resources"

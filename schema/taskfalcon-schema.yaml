@@ -27,7 +27,7 @@ anyOf:
 
 definitions:
 
-  project:
+  projectBase:
     type: object
     title: TaskFalcon project definition
     description: |
@@ -68,8 +68,49 @@ definitions:
         description: |
           Describes how much time passes for each day of the week.
           See https://taskfalcon.org/doc/config_project/index.html#businesshours
-    additionalProperties: false
+
+  project:
+    type: object
+    title: TaskFalcon project definition
+    description: |
+      Required project definition.
+      See https://taskfalcon.org/doc/config_project/index.html
+    properties:
+      name:
+        "$ref": "#/definitions/projectBase/properties/name"
+      start:
+        "$ref": "#/definitions/projectBase/properties/start"
+      tracking:
+        "$ref": "#/definitions/projectBase/properties/tracking"
+      defaultworkingtime:
+        "$ref": "#/definitions/projectBase/properties/defaultworkingtime"
+      timeperday:
+        "$ref": "#/definitions/projectBase/properties/timeperday"
+      businesshours:
+        "$ref": "#/definitions/projectBase/properties/businesshours"
     required: [ start ]
+    additionalProperties: false
+
+  projectUpdate:
+    type: object
+    title: TaskFalcon project update definition
+    description: |
+      Required project definition.
+      See https://taskfalcon.org/doc/config_project/index.html
+    properties:
+      name:
+        "$ref": "#/definitions/projectBase/properties/name"
+      start:
+        "$ref": "#/definitions/projectBase/properties/start"
+      tracking:
+        "$ref": "#/definitions/projectBase/properties/tracking"
+      defaultworkingtime:
+        "$ref": "#/definitions/projectBase/properties/defaultworkingtime"
+      timeperday:
+        "$ref": "#/definitions/projectBase/properties/timeperday"
+      businesshours:
+        "$ref": "#/definitions/projectBase/properties/businesshours"
+    additionalProperties: false
 
   imports:
     type: array
@@ -511,7 +552,7 @@ definitions:
         title: Date of this update
         "$ref": "#/definitions/types/date"
       project:
-        "$ref": "#/definitions/project"
+        "$ref": "#/definitions/projectUpdates"
       resources:
         "$ref": "#/definitions/resources"
       tasks:

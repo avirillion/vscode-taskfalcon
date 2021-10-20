@@ -2,10 +2,11 @@
 
 All notable changes to the `TaskFalcon` extension will be documented in this file.
 
-## 0.8.3
-* Includes TaskFalcon 0.9.11 See [TaskFalcon Release Notes](https://taskfalcon.org/release-notes/index.html).
+## 0.8.4
+* Includes TaskFalcon 0.9.12 See [TaskFalcon Release Notes](https://taskfalcon.org/release-notes/index.html).
 * Improved live syntax validation, added links to documentation
 * Added scaling, scheduling date and update options to live preview
+
 ## 0.8.2
 * Includes TaskFalcon 0.9.10. See [TaskFalcon Release Notes](https://taskfalcon.org/release-notes/index.html).
 
