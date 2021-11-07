@@ -17,7 +17,8 @@
     <div class="group">
         Show Columns:<br>
         <input class="formElement" type="checkbox" name="showEfforts">Efforts<br>
-        <input class="formElement" type="checkbox" name="showEffortsLeft">Efforts-Left<br>
+        <input class="formElement" type="checkbox" name="showEffortsLeft">Efforts Left<br>
+        <input class="formElement" type="checkbox" name="showDone">% Efforts Done<br>
         <input class="formElement" type="checkbox" name="showEnds">End-Date<br>
     </div>
     <div class="group">
@@ -40,9 +41,13 @@
             <option value="year">Years</option>
         </select><br>
     </div>
+    <input type="text" class="formElement" name="start" placeholder="Chart's start date (YYYY-MM-DD)">
+    <input type="text" class="formElement" name="end" placeholder="Chart's end date (YYYY-MM-DD)">
     <input type="text" class="formElement" name="today" placeholder="Today's date (YYYY-MM-DD)">
     <input class="formElement" type="checkbox" name="noUpdates">Skip updates<br>
-    <input class="formElement" type="checkbox" name="noUpdatesAfterToday">Only run updates up to today<br>
+    <input class="formElement" type="checkbox" name="allUpdates">All Updates (incl. after "today")<br>
+
+    <input type="text" class="formElement" name="freeParams" placeholder="Custom parameters">
     <button class="formElement button" name="closeProject">Close Project</button><br>
     <!--
     <button class="formElement button" name="renderProject">Render Project</button>

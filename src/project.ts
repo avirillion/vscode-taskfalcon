@@ -12,12 +12,16 @@ type PreviewConfig = {
     showEnds: boolean;
     showEfforts: boolean;
     showEffortsLeft: boolean;
+    showDone: boolean;
     chart: 'gantt' | 'gantt-with-resources' | 'resources' | 'resources-with-tasks';
     prefix: string;
     today: string;
     noUpdates: boolean;
-    noUpdatesAfterToday: boolean;
+    allUpdates: boolean;
     scale: '' | 'day' | 'week' | 'month' | 'year';
+    start: string;
+    end: string;
+    freeParams: string;
 };
 
 const defaultConfig: PreviewConfig = {
@@ -27,12 +31,16 @@ const defaultConfig: PreviewConfig = {
     showEfforts: false,
     showEffortsLeft: false,
     showEnds: false,
+    showDone: false,
     chart: 'gantt',
     prefix: '',
     today: '',
     scale: '',
+    start: '',
+    end: '',
     noUpdates: false,
-    noUpdatesAfterToday: false
+    allUpdates: false,
+    freeParams: '',
 };
 
 export class TaskFalconProject implements vscode.WebviewViewProvider {
@@ -395,13 +403,24 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
         if (this.previewConfig.showEnds) { parameters.push("-show-ends"); }
         if (this.previewConfig.showEfforts) { parameters.push("-show-efforts"); }
         if (this.previewConfig.showEffortsLeft) { parameters.push("-show-effortsleft"); }
+        if (this.previewConfig.showDone) { parameters.push("-show-done"); }
         if (this.previewConfig.showClosedTasks) { parameters.push("-show-closed-tasks"); }
         if (this.previewConfig.noUpdates) { parameters.push("-no-updates"); }
-        if (this.previewConfig.noUpdatesAfterToday) { parameters.push("-no-updates-after-today"); }
+        if (this.previewConfig.allUpdates) { parameters.push("-all-updates"); }
 
         if (this.previewConfig.today.trim() !== '') { 
             parameters.push("-today"); 
             parameters.push(this.previewConfig.today); 
+        }
+
+        if (this.previewConfig.start.trim() !== '') { 
+            parameters.push("-start"); 
+            parameters.push(this.previewConfig.start); 
+        }
+
+        if (this.previewConfig.end.trim() !== '') { 
+            parameters.push("-end"); 
+            parameters.push(this.previewConfig.end); 
         }
 
         if (this.previewConfig.prefix.trim() !== '') { 
@@ -412,6 +431,11 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
         if (this.previewConfig.scale.trim() !== '') { 
             parameters.push("-scale"); 
             parameters.push(this.previewConfig.scale); 
+        }
+
+        if (this.previewConfig.freeParams.trim() !== '') {
+            let freeParams = this.previewConfig.freeParams.split(' ');
+            parameters = parameters.concat(freeParams);
         }
 
         parameters.push("-export-charts");

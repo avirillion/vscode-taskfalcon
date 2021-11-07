@@ -2,6 +2,15 @@
 
 All notable changes to the `TaskFalcon` extension will be documented in this file.
 
+## 0.8.6
+* Includes TaskFalcon 0.9.14 See [TaskFalcon Release Notes](https://taskfalcon.org/release-notes/index.html).
+* Bugfix release
+
+## 0.8.5
+* Includes TaskFalcon 0.9.13 See [TaskFalcon Release Notes](https://taskfalcon.org/release-notes/index.html).
+* Improved live syntax validation
+* Added rendering start/end dates, Done-Column and custom parameters
+
 ## 0.8.4
 * Includes TaskFalcon 0.9.12 See [TaskFalcon Release Notes](https://taskfalcon.org/release-notes/index.html).
 * Improved live syntax validation, added links to documentation

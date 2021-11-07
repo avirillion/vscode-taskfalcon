@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://taskfalcon.org",
-  "title": "TaskFalcon Schema v0.9.11",
-  "description": "Validation Schema for TaskFalcon v0.9.11",
+  "title": "TaskFalcon Schema v0.9.14",
+  "description": "Validation Schema for TaskFalcon v0.9.14",
   "type": "object",
   "properties": {
     "project": {
@@ -56,7 +56,7 @@
         },
         "tracking": {
           "title": "Project tracking settings",
-          "description": "Can be one of \"auto\" or \"explicit\".\nSee https://taskfalcon.org/doc/config_project/#tracking\n",
+          "description": "Can be one of \"auto\" or \"explicit\".\nSee https://taskfalcon.org/doc/config_project/index.html#tracking\n",
           "enum": [
             "auto",
             "explicit"
@@ -232,14 +232,14 @@
     "bookings": {
       "type": "object",
       "title": "Bookings",
-      "description": "Booking records for explicit work assignments\nSee https://taskfalcon.org/doc/config_updates/#bookings\n",
+      "description": "Booking records for explicit work assignments\nSee https://taskfalcon.org/doc/config_updates/index.html#bookings\n",
       "uniqueItems": true,
       "additionalProperties": true,
       "patternProperties": {
         "^.*$": {
           "type": "string",
           "title": "Resource Efforts",
-          "description": "Booked efforts per resource. E.g.:\n  dev1: 10d\n  dev2: 3d\nSee https://taskfalcon.org/doc/config_updates/#bookings\n",
+          "description": "Booked efforts per resource. E.g.:\n  dev1: 10d\n  dev2: 3d\nSee https://taskfalcon.org/doc/config_types/index.html#duration\n",
           "$ref": "#/definitions/types/duration"
         }
       }
@@ -291,15 +291,20 @@
         "active": {
           "type": "boolean",
           "title": "Active",
-          "description": "An non active task will neither be considered by the scheduler, nor show up in the charts\nSee https://taskfalcon.org/doc/config_tasks/#active\n"
+          "description": "An non active task will neither be considered by the scheduler, nor show up in the charts\nSee https://taskfalcon.org/doc/config_tasks/index.html#active\n"
         },
         "assign": {
           "type": "string",
           "title": "Assign",
-          "description": "Assigned resources (employees) who will work on this tasks\nSee https://taskfalcon.org/doc/config_tasks/#assign\n"
+          "description": "Assigned resources (employees) who will work on this tasks\nSee https://taskfalcon.org/doc/config_tasks/index.html#assign\n"
         },
         "bookings": {
           "$ref": "#/definitions/bookings"
+        },
+        "buffer": {
+          "title": "Buffer",
+          "description": "Additional buffer time to compensate uncertainty\nSee https://taskfalcon.org/doc/config_tasks/index.html#buffer\n",
+          "$ref": "#/definitions/types/duration"
         },
         "dailymax": {
           "type": "string",
@@ -366,7 +371,7 @@
         "reschedule": {
           "type": "boolean",
           "title": "Reschedule",
-          "description": "Will unlock a locked task for a single task, so that dates will be rescheduled without breaking the task schedule\nSee https://taskfalcon.org/doc/config_updates/#reschedule\n"
+          "description": "Will unlock a locked task for a single task, so that dates will be rescheduled without breaking the task schedule\nSee https://taskfalcon.org/doc/config_updates/index.html#reschedule\n"
         },
         "start": {
           "type": "string",
@@ -384,7 +389,7 @@
         },
         "tracking": {
           "title": "Project tracking settings",
-          "description": "Can be one of \"auto\" or \"explicit\".\nSee https://taskfalcon.org/doc/config_tasks/#tracking\n",
+          "description": "Can be one of \"auto\" or \"explicit\".\nSee https://taskfalcon.org/doc/config_tasks/index.html#tracking\n",
           "enum": [
             "auto",
             "explicit"
@@ -546,6 +551,9 @@
           "type": "string",
           "title": "Display name of this group"
         },
+        "active": {
+          "$ref": "#/definitions/taskBase/properties/active"
+        },
         "priority": {
           "$ref": "#/definitions/taskBase/properties/priority"
         },
@@ -577,6 +585,9 @@
         },
         "name": {
           "$ref": "#/definitions/group/properties/name"
+        },
+        "active": {
+          "$ref": "#/definitions/taskBase/properties/active"
         },
         "priority": {
           "$ref": "#/definitions/taskBase/properties/priority"
@@ -643,7 +654,8 @@
     },
     "updates": {
       "type": "array",
-      "title": "Contains list of incremental project updates",
+      "title": "Project update",
+      "description": "Contains list of incremental project updates.\nSee https://taskfalcon.org/doc/config_updates/index.html\n",
       "items": {
         "$ref": "#/definitions/update"
       },

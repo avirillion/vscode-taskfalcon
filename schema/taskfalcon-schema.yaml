@@ -1,8 +1,8 @@
 ---
 "$schema": http://json-schema.org/draft-07/schema#
 "$id": https://taskfalcon.org
-title: TaskFalcon Schema v0.9.11
-description: Validation Schema for TaskFalcon v0.9.11
+title: TaskFalcon Schema v0.9.14
+description: Validation Schema for TaskFalcon v0.9.14
 
 type: object
 properties:
@@ -51,7 +51,7 @@ definitions:
         title: Project tracking settings
         description: |
           Can be one of "auto" or "explicit".
-          See https://taskfalcon.org/doc/config_project/#tracking
+          See https://taskfalcon.org/doc/config_project/index.html#tracking
         enum: [ 'auto', 'explicit' ]
       defaultworkingtime:
         title: Default Working Time
@@ -206,7 +206,7 @@ definitions:
     title: Bookings
     description: |
       Booking records for explicit work assignments
-      See https://taskfalcon.org/doc/config_updates/#bookings
+      See https://taskfalcon.org/doc/config_updates/index.html#bookings
     uniqueItems: true
     additionalProperties: true
     patternProperties:
@@ -217,7 +217,7 @@ definitions:
           Booked efforts per resource. E.g.:
             dev1: 10d
             dev2: 3d
-          See https://taskfalcon.org/doc/config_updates/#bookings
+          See https://taskfalcon.org/doc/config_types/index.html#duration
         "$ref": "#/definitions/types/duration"
 
   tasks:
@@ -253,21 +253,21 @@ definitions:
         title: Active
         description: |
           An non active task will neither be considered by the scheduler, nor show up in the charts
-          See https://taskfalcon.org/doc/config_tasks/#active
+          See https://taskfalcon.org/doc/config_tasks/index.html#active
       assign:
         type: string
         title: Assign
         description: |
           Assigned resources (employees) who will work on this tasks
-          See https://taskfalcon.org/doc/config_tasks/#assign
+          See https://taskfalcon.org/doc/config_tasks/index.html#assign
       bookings:
         "$ref": "#/definitions/bookings"
-      # buffer:
-      #   title: Buffer
-      #   description: |
-      #     Additional buffer time to compensate uncertainty
-      #     See https://taskfalcon.org/doc/config_tasks/#buffer
-      #   "$ref": "#/definitions/types/duration"
+      buffer:
+        title: Buffer
+        description: |
+          Additional buffer time to compensate uncertainty
+          See https://taskfalcon.org/doc/config_tasks/index.html#buffer
+        "$ref": "#/definitions/types/duration"
       dailymax:
         type: string
         title: Daily Max
@@ -346,7 +346,7 @@ definitions:
         title: Reschedule
         description: |
           Will unlock a locked task for a single task, so that dates will be rescheduled without breaking the task schedule
-          See https://taskfalcon.org/doc/config_updates/#reschedule
+          See https://taskfalcon.org/doc/config_updates/index.html#reschedule
       start:
         type: string
         title: Start
@@ -364,7 +364,7 @@ definitions:
         title: Project tracking settings
         description: |
           Can be one of "auto" or "explicit".
-          See https://taskfalcon.org/doc/config_tasks/#tracking
+          See https://taskfalcon.org/doc/config_tasks/index.html#tracking
         enum: [ 'auto', 'explicit' ]
       weeklymax:
         type: string
@@ -475,6 +475,8 @@ definitions:
       name:
         type: string
         title: Display name of this group
+      active:
+        "$ref": "#/definitions/taskBase/properties/active"
       priority:
         "$ref": "#/definitions/taskBase/properties/priority"
       depends:
@@ -496,6 +498,8 @@ definitions:
         "$ref": "#/definitions/group/properties/group"
       name:
         "$ref": "#/definitions/group/properties/name"
+      active:
+        "$ref": "#/definitions/taskBase/properties/active"
       priority:
         "$ref": "#/definitions/taskBase/properties/priority"
       depends:
@@ -537,7 +541,10 @@ definitions:
 
   updates:
     type: array
-    title: Contains list of incremental project updates
+    title: Project update
+    description: |
+      Contains list of incremental project updates.
+      See https://taskfalcon.org/doc/config_updates/index.html
     items:
       "$ref": "#/definitions/update"
     additionalProperties: false
