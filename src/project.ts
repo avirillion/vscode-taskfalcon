@@ -4,6 +4,7 @@ import { promisify } from 'util';
 import * as vscode from 'vscode';
 import * as yaml from 'yaml';
 import { TaskFalconRunner } from './falconrunner';
+import { FilePos, findResource, findTask, parseReferences } from './referenceparser';
 
 type PreviewConfig = {
     showIDs: boolean;
@@ -21,6 +22,7 @@ type PreviewConfig = {
     scale: '' | 'day' | 'week' | 'month' | 'year';
     start: string;
     end: string;
+    tags: string;
     freeParams: string;
 };
 
@@ -40,6 +42,7 @@ const defaultConfig: PreviewConfig = {
     end: '',
     noUpdates: false,
     allUpdates: false,
+    tags: '',
     freeParams: '',
 };
 
@@ -55,6 +58,13 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
     private yamlExtension?: vscode.Extension<any>;
     private pages: {[key: string]: HandlebarsTemplateDelegate} = {};
     private taskFalconOutput?: vscode.OutputChannel;
+    private clickMapFile?: string;
+    private clickMapObject?: any;
+    private clickMapReferences?: any;
+    private lastClickItem?: string;
+    private lastClickResults?: FilePos[];
+    private lastClickTime: number = 0;
+    private lastClickIteration: number = 0;
 
     constructor(context: vscode.ExtensionContext) {
         this.ctx = context;
@@ -341,18 +351,105 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
         return !!this.document;
     }
 
+    private clearClickMap() {
+        this.clickMapObject = null;
+        this.clickMapReferences = null;
+        this.lastClickItem = "";
+        this.lastClickResults = [];
+        this.lastClickTime = 0;
+        this.lastClickIteration = 0;
+    }
+
+    private async clickImage(x: number, y: number) {
+        if (!this.clickMapFile) {
+            return;
+        }
+
+        if (!this.clickMapObject) {
+            try {
+                this.clickMapObject = await this.parseClickMap(this.clickMapFile);
+            } catch (err) {
+                console.log(err);
+                return;
+            }
+        }
+
+        if (!this.clickMapReferences) {
+            try {
+                this.clickMapReferences = await parseReferences(this.document!.uri);
+            } catch (err) {
+                console.log(err);
+                return;
+            }
+        }
+
+        // Figure out task id to search for
+        const offset = 50;
+        const rowHeight = 20;
+        const row = Math.floor((y - offset) / rowHeight);
+        const task = this.clickMapObject.tasks[row];
+        const resource = this.clickMapObject.resources[row];
+
+        if (!task && !resource) {
+            return;
+        }
+
+        // Get list of matches in YAML files
+        if ((resource || task) !== this.lastClickItem) {
+            if (!!resource) {
+                this.lastClickResults = findResource(this.clickMapReferences, resource);
+            } else if (!!task) {
+                this.lastClickResults = findTask(this.clickMapReferences, task);
+            }
+            this.lastClickIteration = 0;
+            this.lastClickTime = 0;
+        }
+        this.lastClickItem = resource || task;
+
+        // Check if we want to jump to the first entry or cycling through all entries
+        const restartTimeout = 2000;
+        if (new Date().getTime() < (this.lastClickTime + restartTimeout)) {
+            this.lastClickIteration++;
+        } else {
+            this.lastClickIteration = 0;
+        }
+        this.lastClickTime = new Date().getTime();
+
+        const filePos = this.lastClickResults![this.lastClickIteration % this.lastClickResults!.length];
+        if (!filePos?.path) {
+            return;
+        }
+
+        // Show selection
+        const document = await vscode.workspace.openTextDocument(filePos.path);
+        const editor = await vscode.window.showTextDocument(document, vscode.ViewColumn.One);
+        const selection = new vscode.Selection(filePos.line, 0, filePos.line, 0);
+        editor.revealRange(selection);
+        editor.selection = selection;
+    }
+
     /**
      * Shows a HTML page with the rendered TaskFalcon image
      */
     private showPreview(imageUri?: vscode.Uri, error?: string) {
+        const previewWindowId = 'TaskFalconPreview';
+        const previewWindowTitle = 'TaskFalcon Preview';
+
         if (this.preview) {
-            this.preview.reveal(vscode.ViewColumn.Beside);
-            this.preview!.title = "TaskFalcon Preview";
+            if (!this.preview.visible) {
+                this.preview.reveal(vscode.ViewColumn.Beside);
+            }
+            this.preview!.title = previewWindowTitle;
         } else {
+            const project = this;
+            const options: vscode.WebviewOptions = {
+                enableScripts: true
+            };
             this.preview = vscode.window.createWebviewPanel(
-                "TaskFalconPreview", "TaskFalcon Preview",
-                vscode.ViewColumn.Beside, {}
-            );
+                previewWindowId, previewWindowTitle,
+                vscode.ViewColumn.Beside, options);
+            this.preview.webview.onDidReceiveMessage(
+                (data) => project.clickImage(data.x, data.y));
             this.preview.onDidDispose(() => {
                 this.preview = undefined;
             });
@@ -410,27 +507,32 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
 
         if (this.previewConfig.today.trim() !== '') { 
             parameters.push("-today"); 
-            parameters.push(this.previewConfig.today); 
+            parameters.push(this.previewConfig.today.trim()); 
         }
 
         if (this.previewConfig.start.trim() !== '') { 
             parameters.push("-start"); 
-            parameters.push(this.previewConfig.start); 
+            parameters.push(this.previewConfig.start.trim()); 
         }
 
         if (this.previewConfig.end.trim() !== '') { 
             parameters.push("-end"); 
-            parameters.push(this.previewConfig.end); 
+            parameters.push(this.previewConfig.end.trim()); 
         }
 
         if (this.previewConfig.prefix.trim() !== '') { 
             parameters.push("-prefix"); 
-            parameters.push(this.previewConfig.prefix); 
+            parameters.push(this.previewConfig.prefix.trim()); 
         }
 
         if (this.previewConfig.scale.trim() !== '') { 
             parameters.push("-scale"); 
-            parameters.push(this.previewConfig.scale); 
+            parameters.push(this.previewConfig.scale.trim()); 
+        }
+
+        if (this.previewConfig.tags.trim() !== '') {
+            parameters.push("-tags"); 
+            parameters.push(this.previewConfig.tags.trim()); 
         }
 
         if (this.previewConfig.freeParams.trim() !== '') {
@@ -440,6 +542,8 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
 
         parameters.push("-export-charts");
         parameters.push(this.previewConfig.chart);
+
+        parameters.push("-export-click-map");
 
         parameters.push(this.document!.fileName);
         if (this.falconRunner) {
@@ -462,16 +566,10 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
                 throw(output);
             }
             
-            let filename = this.document!.fileName;
-            let basename = filename;
-
-            if (filename.toLowerCase().endsWith('.yaml')) {
-                basename = filename.slice(0, filename.length-5);
-            } else if (basename.toLowerCase().endsWith('.yml')) {
-                basename = filename.slice(0, filename.length-4);
-            }
-
-            let imageUri = vscode.Uri.file(`${basename}.${this.previewConfig.chart}.png`);
+            let imageName = this.getPreviewImageName();
+            let imageUri = vscode.Uri.file(imageName);
+            this.clickMapFile = imageName + ".json";
+            this.clearClickMap();
             this.showPreview(imageUri, undefined);
         } catch (e) {
             output = e as any;
@@ -481,5 +579,24 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
         // Show output in console
         this.taskFalconOutput!.append(output);
         this.falconRunner = undefined;
+    }
+
+    private getPreviewImageName(): string {
+        let filename = this.document!.fileName;
+        let basename = filename;
+
+        if (filename.toLowerCase().endsWith('.yaml')) {
+            basename = filename.slice(0, filename.length-5);
+        } else if (basename.toLowerCase().endsWith('.yml')) {
+            basename = filename.slice(0, filename.length-4);
+        }
+
+        return `${basename}.${this.previewConfig.chart}.png`;
+    }
+
+    private async parseClickMap(filename: string): Promise<any> {
+        const readFile = promisify(fs.readFile)
+        let clickMap = await readFile(filename);
+        return JSON.parse(clickMap.toString());
     }
 }

@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://taskfalcon.org",
-  "title": "TaskFalcon Schema v0.9.14",
-  "description": "Validation Schema for TaskFalcon v0.9.14",
+  "title": "TaskFalcon Schema v0.9.17",
+  "description": "Validation Schema for TaskFalcon v0.9.17",
   "type": "object",
   "properties": {
     "project": {
@@ -317,6 +317,11 @@
           "title": "Depends",
           "description": "Dependency on another task/milestone/group.\nSee https://taskfalcon.org/doc/config_tasks/index.html#depends\n"
         },
+        "description": {
+          "type": "string",
+          "title": "Description",
+          "description": "Free text description of the task.\nSee https://taskfalcon.org/doc/config_tasks/index.html#description\n"
+        },
         "efforts": {
           "type": "string",
           "title": "Efforts",
@@ -324,7 +329,16 @@
           "$ref": "#/definitions/types/duration"
         },
         "effortsleft": {
-          "type": "string",
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 0
+            },
+            {
+              "type": "string"
+            }
+          ],
           "title": "Efforts Left",
           "description": "Amount of remaining efforts counted from the day of the current update\nSee https://taskfalcon.org/doc/config_tasks/index.html#effortsleft\n",
           "$ref": "#/definitions/types/duration"
@@ -342,10 +356,24 @@
           "$ref": "#/definitions/types/duration"
         },
         "lengthleft": {
-          "type": "string",
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 0
+            },
+            {
+              "type": "string"
+            }
+          ],
           "title": "Length Left",
           "description": "Amount of remaining time counted from the day of the current update\nSee https://taskfalcon.org/doc/config_tasks/index.html#lengthleft\n",
           "$ref": "#/definitions/types/duration"
+        },
+        "link": {
+          "type": "string",
+          "title": "Link to external sources",
+          "description": "Contains a link to an external resource like a Jira ticket.\nSee https://taskfalcon.org/doc/config_tasks/index.html#link\n"
         },
         "locked": {
           "type": "boolean",
@@ -378,6 +406,14 @@
           "title": "Start",
           "description": "Start date of the task\nSee https://taskfalcon.org/doc/config_tasks/index.html#start\n",
           "$ref": "#/definitions/types/date"
+        },
+        "tags": {
+          "type": [
+            "string",
+            "number"
+          ],
+          "title": "One or more tags",
+          "description": "Arbitrary tag to select/deselect tasks for showing tasks/groups/milestones in the output\nSee https://taskfalcon.org/doc/config_tasks/index.html#tags\n"
         },
         "task": {
           "type": [
@@ -413,11 +449,17 @@
         "assign": {
           "$ref": "#/definitions/taskBase/properties/assign"
         },
+        "buffer": {
+          "$ref": "#/definitions/taskBase/properties/buffer"
+        },
         "dailymax": {
           "$ref": "#/definitions/taskBase/properties/dailymax"
         },
         "depends": {
           "$ref": "#/definitions/taskBase/properties/depends"
+        },
+        "description": {
+          "$ref": "#/definitions/taskBase/properties/description"
         },
         "efforts": {
           "$ref": "#/definitions/taskBase/properties/efforts"
@@ -427,6 +469,9 @@
         },
         "length": {
           "$ref": "#/definitions/taskBase/properties/length"
+        },
+        "link": {
+          "$ref": "#/definitions/taskBase/properties/link"
         },
         "locked": {
           "$ref": "#/definitions/taskBase/properties/locked"
@@ -442,6 +487,9 @@
         },
         "start": {
           "$ref": "#/definitions/taskBase/properties/start"
+        },
+        "tags": {
+          "$ref": "#/definitions/taskBase/properties/tags"
         },
         "task": {
           "$ref": "#/definitions/taskBase/properties/task"
@@ -479,11 +527,17 @@
         "bookings": {
           "$ref": "#/definitions/taskBase/properties/bookings"
         },
+        "buffer": {
+          "$ref": "#/definitions/taskBase/properties/buffer"
+        },
         "dailymax": {
           "$ref": "#/definitions/taskBase/properties/dailymax"
         },
         "depends": {
           "$ref": "#/definitions/taskBase/properties/depends"
+        },
+        "description": {
+          "$ref": "#/definitions/taskBase/properties/description"
         },
         "efforts": {
           "$ref": "#/definitions/taskBase/properties/efforts"
@@ -499,6 +553,9 @@
         },
         "lengthleft": {
           "$ref": "#/definitions/taskBase/properties/lengthleft"
+        },
+        "link": {
+          "$ref": "#/definitions/taskBase/properties/link"
         },
         "locked": {
           "$ref": "#/definitions/taskBase/properties/locked"
@@ -517,6 +574,9 @@
         },
         "start": {
           "$ref": "#/definitions/taskBase/properties/start"
+        },
+        "tags": {
+          "$ref": "#/definitions/taskBase/properties/tags"
         },
         "task": {
           "$ref": "#/definitions/taskBase/properties/task"
@@ -622,17 +682,26 @@
           "type": "string",
           "title": "Display name of this milestone"
         },
+        "active": {
+          "$ref": "#/definitions/task/properties/active"
+        },
         "depends": {
           "$ref": "#/definitions/task/properties/depends"
         },
-        "start": {
-          "$ref": "#/definitions/task/properties/start"
+        "description": {
+          "$ref": "#/definitions/taskBase/properties/description"
+        },
+        "link": {
+          "$ref": "#/definitions/taskBase/properties/link"
         },
         "locked": {
           "$ref": "#/definitions/task/properties/locked"
         },
-        "active": {
-          "$ref": "#/definitions/task/properties/active"
+        "start": {
+          "$ref": "#/definitions/task/properties/start"
+        },
+        "tags": {
+          "$ref": "#/definitions/taskBase/properties/tags"
         }
       },
       "additionalProperties": false,

@@ -2,13 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src {{cspSource}}; script-src {{cspSource}}; style-src {{cspSource}};">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'unsafe-inline'; img-src {{cspSource}}; script-src 'unsafe-inline'; style-src {{cspSource}};">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TaskFalcon Preview</title>
+    <script type="text/javascript">
+        const vscode = acquireVsCodeApi();
+        function clickImage(e) {
+            let img = e.target;
+            let scale = img.clientWidth / img.naturalWidth;
+            vscode.postMessage({ x: e.pageX / scale, y: e.pageY / scale }); 
+        }
+    </script>
 </head>
 <body>
     {{#if image}}
-        <img alt="TaskFalcon Preview" src="{{image}}">
+        <img alt="TaskFalcon Preview" src="{{image}}" onclick="clickImage(event)">
     {{/if}}
     {{#if error}}
         <pre>{{error}}</pre>
