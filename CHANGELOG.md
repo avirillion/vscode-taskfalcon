@@ -2,6 +2,11 @@
 
 All notable changes to the `TaskFalcon` extension will be documented in this file.
 
+## 0.8.9
+* Includes TaskFalcon 0.9.18. See [TaskFalcon Release Notes](https://taskfalcon.org/release-notes/index.html).
+* Added support for "Efforts Spent" column
+* Added links to documentation
+
 ## 0.8.8
 * Includes TaskFalcon 0.9.17. See [TaskFalcon Release Notes](https://taskfalcon.org/release-notes/index.html).
 * Added support for filter tags

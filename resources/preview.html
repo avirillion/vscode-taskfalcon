@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'unsafe-inline'; img-src {{cspSource}}; script-src 'unsafe-inline'; style-src {{cspSource}};">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'unsafe-inline'; img-src {{cspSource}}; script-src 'unsafe-inline';">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TaskFalcon Preview</title>
     <script type="text/javascript">
@@ -17,6 +17,7 @@
 <body>
     {{#if image}}
         <img alt="TaskFalcon Preview" src="{{image}}" onclick="clickImage(event)">
+        <p style="color:#888; font-size:x-small; margin:0px;">Click on a task to show it in the editor</p>
     {{/if}}
     {{#if error}}
         <pre>{{error}}</pre>

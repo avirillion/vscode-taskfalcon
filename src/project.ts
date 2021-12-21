@@ -12,6 +12,7 @@ type PreviewConfig = {
     hideTasks: boolean;
     showEnds: boolean;
     showEfforts: boolean;
+    showEffortsSpent: boolean;
     showEffortsLeft: boolean;
     showDone: boolean;
     chart: 'gantt' | 'gantt-with-resources' | 'resources' | 'resources-with-tasks';
@@ -31,6 +32,7 @@ const defaultConfig: PreviewConfig = {
     showClosedTasks: false,
     hideTasks: false,
     showEfforts: false,
+    showEffortsSpent: false,
     showEffortsLeft: false,
     showEnds: false,
     showDone: false,
@@ -233,6 +235,18 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
                 this.closeProject();
                 break;
 
+            case 'openTaskFalconWebsite':
+                vscode.env.openExternal(vscode.Uri.parse('https://taskfalcon.org'));
+                break;
+
+            case 'openTaskDocumentation':
+                vscode.env.openExternal(vscode.Uri.parse('https://taskfalcon.org/doc/config_tasks/index.html'));
+                break;
+
+            case 'openCommandLineDocumentation':
+                vscode.env.openExternal(vscode.Uri.parse('https://taskfalcon.org/doc/command_line/index.html'));
+                break;
+
             case 'showProjectFile':
                 this.showProjectFile();
                 break;
@@ -337,7 +351,7 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
             let yamlDoc = yaml.parse(doc.document.getText());
             let project = yamlDoc['project'];
             this.document = doc.document;
-            this.runFalcon();
+            this.showPreview(undefined, "Processing TaskFalcon file...");
             return !!project;
         } catch (e) {
             return false;
@@ -499,6 +513,7 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
         if (this.previewConfig.hideTasks) { parameters.push("-no-tasks"); }
         if (this.previewConfig.showEnds) { parameters.push("-show-ends"); }
         if (this.previewConfig.showEfforts) { parameters.push("-show-efforts"); }
+        if (this.previewConfig.showEffortsSpent) { parameters.push("-show-effortsspent"); }
         if (this.previewConfig.showEffortsLeft) { parameters.push("-show-effortsleft"); }
         if (this.previewConfig.showDone) { parameters.push("-show-done"); }
         if (this.previewConfig.showClosedTasks) { parameters.push("-show-closed-tasks"); }
@@ -548,6 +563,7 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
         parameters.push(this.document!.fileName);
         if (this.falconRunner) {
             this.falconRunner.kill();
+            this.falconRunner = undefined;
         }
 
         if (this.preview) {
@@ -555,7 +571,7 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
         }
         this.falconRunner = new TaskFalconRunner(parameters);
         this.taskFalconOutput!.clear();
-        this.taskFalconOutput!.show();
+        this.taskFalconOutput!.show(true);
         this.taskFalconOutput!.appendLine("> falcon " + parameters.join(" ") + "\n");
 
         let output: string = "";
