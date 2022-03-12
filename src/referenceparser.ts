@@ -47,16 +47,17 @@ async function parseRecursively(parent: TaskFalconDef, knownFiles: Set<string>, 
             continue;
         }
         let basename = uri.path.split(/\/|\\/).pop()!.split('.').shift()!;
+        let currentPrefix = prefix;
         if (prefix) {
-            prefix = `${prefix}.${basename}`;
+            currentPrefix = `${prefix}.${basename}`;
         } else {
-            prefix = basename;
+            currentPrefix = basename;
         }
 
         let subProject = await parseFile(uri);
         knownFiles.add(uri.path);
-        mergeSubProject(parent, subProject, prefix);
-        parseRecursively(subProject, knownFiles, prefix);
+        mergeSubProject(parent, subProject, currentPrefix);
+        parseRecursively(subProject, knownFiles, currentPrefix);
     }
     return parent;
 }
