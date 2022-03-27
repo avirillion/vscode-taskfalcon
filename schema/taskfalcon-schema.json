@@ -1,8 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://taskfalcon.org",
-  "title": "TaskFalcon Schema v0.9.17",
-  "description": "Validation Schema for TaskFalcon v0.9.17",
+  "title": "TaskFalcon Schema v0.9.20",
+  "description": "Validation Schema for TaskFalcon v0.9.20",
   "type": "object",
   "properties": {
     "project": {
@@ -13,6 +13,9 @@
     },
     "tasks": {
       "$ref": "#/definitions/tasks"
+    },
+    "accounts": {
+      "$ref": "#/definitions/accounts"
     },
     "updates": {
       "$ref": "#/definitions/updates"
@@ -288,6 +291,11 @@
       "type": "object",
       "title": "Tasks for project",
       "properties": {
+        "account": {
+          "type": "string",
+          "title": "Account",
+          "description": "For billing tasks, an account must be specified\nSee https://taskfalcon.org/doc/config_tasks/index.html#account\n"
+        },
         "active": {
           "type": "boolean",
           "title": "Active",
@@ -300,6 +308,16 @@
         },
         "bookings": {
           "$ref": "#/definitions/bookings"
+        },
+        "changeonstart": {
+          "title": "ChargeOnStart",
+          "description": "Charge that will be bookend on an account at the start of a task\nSee https://taskfalcon.org/doc/config_tasks/index.html#chargeonstartchargeonend\n",
+          "$ref": "#/definitions/types/currency"
+        },
+        "changeonend": {
+          "title": "ChargeOnEnd",
+          "description": "Charge that will be bookend on an account at the end of a task\nSee https://taskfalcon.org/doc/config_tasks/index.html#chargeonstartchargeonend\n",
+          "$ref": "#/definitions/types/currency"
         },
         "buffer": {
           "title": "Buffer",
@@ -401,6 +419,11 @@
           "title": "Reschedule",
           "description": "Will unlock a locked task for a single task, so that dates will be rescheduled without breaking the task schedule\nSee https://taskfalcon.org/doc/config_updates/index.html#reschedule\n"
         },
+        "role": {
+          "type": "string",
+          "title": "Account role",
+          "description": "For billing resources on tasks, a role must be specified for the resources\nSee https://taskfalcon.org/doc/config_tasks/index.html#role\n"
+        },
         "start": {
           "type": "string",
           "title": "Start",
@@ -443,6 +466,9 @@
       "type": "object",
       "title": "Tasks for project",
       "properties": {
+        "account": {
+          "$ref": "#/definitions/taskBase/properties/account"
+        },
         "active": {
           "$ref": "#/definitions/taskBase/properties/active"
         },
@@ -451,6 +477,12 @@
         },
         "buffer": {
           "$ref": "#/definitions/taskBase/properties/buffer"
+        },
+        "chargeonstart": {
+          "$ref": "#/definitions/taskBase/properties/chargeonstart"
+        },
+        "chargeonend": {
+          "$ref": "#/definitions/taskBase/properties/chargeonend"
         },
         "dailymax": {
           "$ref": "#/definitions/taskBase/properties/dailymax"
@@ -485,6 +517,9 @@
         "priority": {
           "$ref": "#/definitions/taskBase/properties/priority"
         },
+        "role": {
+          "$ref": "#/definitions/taskBase/properties/role"
+        },
         "start": {
           "$ref": "#/definitions/taskBase/properties/start"
         },
@@ -518,6 +553,9 @@
       "type": "object",
       "title": "Tasks for project",
       "properties": {
+        "account": {
+          "$ref": "#/definitions/taskBase/properties/account"
+        },
         "active": {
           "$ref": "#/definitions/taskBase/properties/active"
         },
@@ -529,6 +567,12 @@
         },
         "buffer": {
           "$ref": "#/definitions/taskBase/properties/buffer"
+        },
+        "chargeonstart": {
+          "$ref": "#/definitions/taskBase/properties/chargeonstart"
+        },
+        "chargeonend": {
+          "$ref": "#/definitions/taskBase/properties/chargeonend"
         },
         "dailymax": {
           "$ref": "#/definitions/taskBase/properties/dailymax"
@@ -572,6 +616,9 @@
         "reschedule": {
           "$ref": "#/definitions/taskBase/properties/reschedule"
         },
+        "role": {
+          "$ref": "#/definitions/taskBase/properties/role"
+        },
         "start": {
           "$ref": "#/definitions/taskBase/properties/start"
         },
@@ -611,6 +658,9 @@
           "type": "string",
           "title": "Display name of this group"
         },
+        "account": {
+          "$ref": "#/definitions/taskBase/properties/account"
+        },
         "active": {
           "$ref": "#/definitions/taskBase/properties/active"
         },
@@ -619,6 +669,9 @@
         },
         "depends": {
           "$ref": "#/definitions/taskBase/properties/depends"
+        },
+        "role": {
+          "$ref": "#/definitions/taskBase/properties/role"
         },
         "start": {
           "$ref": "#/definitions/taskBase/properties/start"
@@ -721,6 +774,93 @@
         }
       ]
     },
+    "accounts": {
+      "type": "array",
+      "title": "Accounts for tracking the project's financials",
+      "description": "See https://taskfalcon.org/doc/config_accounts/index.html",
+      "items": [
+        {
+          "$ref": "#/definitions/account"
+        }
+      ],
+      "additionalProperties": false,
+      "uniqueItems": true
+    },
+    "account": {
+      "type": "object",
+      "title": "Account for tracking the project's financials",
+      "description": "See https://taskfalcon.org/doc/config_accounts/index.html",
+      "properties": {
+        "account": {
+          "type": [
+            "string",
+            "number"
+          ],
+          "title": "ID of this account",
+          "description": "Identifier of this account. All later references will use this identifier\nSee https://taskfalcon.org/doc/config_accounts/index.html\n"
+        },
+        "name": {
+          "type": [
+            "string",
+            "number"
+          ],
+          "title": "Name",
+          "description": "Display name of this account. Has no effect on scheduling\nSee https://taskfalcon.org/doc/config_accounts/index.html\n"
+        },
+        "subaccounts": {
+          "$ref": "#/definitions/accounts"
+        },
+        "roles": {
+          "type": "array",
+          "title": "Roles",
+          "description": "List of roles that resources can use to bill efforts spent on a task\nSee https://taskfalcon.org/doc/config_accounts/index.html#roles\n",
+          "items": {
+            "$ref": "#/definitions/role"
+          }
+        },
+        "payments": {
+          "type": "array",
+          "title": "Payments",
+          "description": "List of individual payments that are booked on an account.\nSee https://taskfalcon.org/doc/config_accounts/index.html#payments\n",
+          "items": {
+            "$ref": "#/definitions/types/payment"
+          },
+          "uniqueItems": true
+        }
+      },
+      "additionalProperties": false,
+      "uniqueItems": true
+    },
+    "role": {
+      "type": "object",
+      "title": "Role for tracking financial aspects of efforts spent on a task",
+      "description": "See https://taskfalcon.org/doc/config_accounts/index.html#roles",
+      "properties": {
+        "role": {
+          "type": [
+            "string",
+            "number"
+          ],
+          "title": "ID of this role",
+          "description": "Identifier of this role. All later references will use this identifier\nSee https://taskfalcon.org/doc/config_accounts/index.html#roles\n"
+        },
+        "name": {
+          "type": [
+            "string",
+            "number"
+          ],
+          "title": "Name",
+          "description": "Display name of this role. Has no effect on scheduling\nSee https://taskfalcon.org/doc/config_accounts/index.htm#roles\n"
+        },
+        "rate": {
+          "type": [
+            "number"
+          ],
+          "title": "Rate per hour",
+          "description": "Rate per hour that is charged when a resource is using this role\nSee https://taskfalcon.org/doc/config_accounts/index.html#roles\n"
+        }
+      }
+    },
     "updates": {
       "type": "array",
       "title": "Project update",
@@ -748,6 +888,9 @@
         },
         "tasks": {
           "$ref": "#/definitions/taskUpdates"
+        },
+        "accounts": {
+          "$ref": "#/definitions/accounts"
         }
       },
       "additionalProperties": false,
@@ -769,6 +912,11 @@
           "required": [
             "project"
           ]
+        },
+        {
+          "required": [
+            "accounts"
+          ]
         }
       ]
     },
@@ -780,6 +928,14 @@
       "date": {
         "pattern": "[0-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]",
         "example": "2020-06-01"
+      },
+      "payment": {
+        "pattern": "[0-2][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]  *[+-]?[0-9]{1,3}(?:[0-9]*(?:[.,][0-9]{2})?|(?:,[0-9]{3})*(?:\\.[0-9]{2})?|(?:\\.[0-9]{3})*(?:,[0-9]{2})?)  *.*",
+        "example": "2020-06-01 20000.00 First payment"
+      },
+      "currency": {
+        "pattern": "[+-]?[0-9]{1,3}(?:[0-9]*(?:[.,][0-9]{2})?|(?:,[0-9]{3})*(?:\\.[0-9]{2})?|(?:\\.[0-9]{3})*(?:,[0-9]{2})?)",
+        "example": -20000
       }
     }
   }

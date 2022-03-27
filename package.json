@@ -2,7 +2,7 @@
   "name": "taskfalcon",
   "displayName": "TaskFalcon",
   "description": "Integration of the TaskFalcon project planner",
-  "version": "0.8.9",
+  "version": "0.8.10",
   "publisher": "taskfalcon",
   "repository": {
     "type": "git",

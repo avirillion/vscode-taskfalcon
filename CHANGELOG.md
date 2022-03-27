@@ -2,6 +2,10 @@
 
 All notable changes to the `TaskFalcon` extension will be documented in this file.
 
+## 0.8.10
+* Includes TaskFalcon 0.9.20. See [TaskFalcon Release Notes](https://taskfalcon.org/release-notes/index.html).
+* Hovering over the gantt chart reveals the task/resource id
+
 ## 0.8.9
 * Includes TaskFalcon 0.9.18. See [TaskFalcon Release Notes](https://taskfalcon.org/release-notes/index.html).
 * Added support for "Efforts Spent" column

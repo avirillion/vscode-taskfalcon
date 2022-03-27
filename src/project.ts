@@ -48,6 +48,15 @@ const defaultConfig: PreviewConfig = {
     freeParams: '',
 };
 
+enum ClickItemType {
+    RESOURCE,
+    TASK
+}
+interface ClickItem {
+    type: ClickItemType,
+    value: string,
+}
+
 export class TaskFalconProject implements vscode.WebviewViewProvider {
     public static readonly id = 'falcon-project';
 
@@ -374,7 +383,22 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
         this.lastClickIteration = 0;
     }
 
-    private async clickImage(x: number, y: number) {
+    /**
+     * Returns the clicked row in the image
+     * @param x Image coords
+     * @param y Image coords
+     */
+    private getRowByImageCoords(x: number, y: number): number {
+        const offset = 50;
+        const rowHeight = 20;
+        const row = Math.floor((y - offset) / rowHeight);
+        return row;
+    }
+
+    /**
+     * Returns the element for the given row in the current image
+     */
+    private async getClickItemByImageRow(row: number): Promise<ClickItem | undefined> {
         if (!this.clickMapFile) {
             return;
         }
@@ -388,6 +412,42 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
             }
         }
 
+        const task = this.clickMapObject.tasks[row];
+        if (task) {
+            return { type: ClickItemType.TASK, value: task };
+        }
+        const resource = this.clickMapObject.resources[row];
+        if (resource) {
+            return { type: ClickItemType.RESOURCE, value: resource };
+        }
+    }
+
+    /**
+     * Gets called by preview window when the mouse hovers over a task
+     * This function retrieves the task id for the given coordinates
+     */
+    private async hoverImage(x: number, y: number) {
+        const row = this.getRowByImageCoords(x, y);
+        let clickItem = await this.getClickItemByImageRow(row);
+        if (!clickItem) {
+            return;
+        }
+
+        this.preview?.webview.postMessage( {action: 'showId', x, y, id: clickItem.value} );
+    }
+
+    /**
+     * Gets called when the user clicks on the preview image.
+     * The function determines the task and navigates to the task in the source code files
+     */
+    private async clickImage(x: number, y: number) {
+        const row = this.getRowByImageCoords(x, y);
+        let clickItem = await this.getClickItemByImageRow(row);
+        if (!clickItem) {
+            return;
+        }
+        this.lastClickItem = clickItem.value;
+
         if (!this.clickMapReferences) {
             try {
                 this.clickMapReferences = await parseReferences(this.document!.uri);
@@ -397,28 +457,16 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
             }
         }
 
-        // Figure out task id to search for
-        const offset = 50;
-        const rowHeight = 20;
-        const row = Math.floor((y - offset) / rowHeight);
-        const task = this.clickMapObject.tasks[row];
-        const resource = this.clickMapObject.resources[row];
-
-        if (!task && !resource) {
-            return;
-        }
-
         // Get list of matches in YAML files
-        if ((resource || task) !== this.lastClickItem) {
-            if (!!resource) {
-                this.lastClickResults = findResource(this.clickMapReferences, resource);
-            } else if (!!task) {
-                this.lastClickResults = findTask(this.clickMapReferences, task);
-            }
-            this.lastClickIteration = 0;
-            this.lastClickTime = 0;
+        switch (clickItem.type) {
+            case ClickItemType.RESOURCE:
+                this.lastClickResults = findResource(this.clickMapReferences, clickItem.value);
+                break;
+            case ClickItemType.TASK:
+                this.lastClickResults = findTask(this.clickMapReferences, clickItem.value);
+                break;
+
         }
-        this.lastClickItem = resource || task;
 
         // Check if we want to jump to the first entry or cycling through all entries
         const restartTimeout = 2000;
@@ -463,7 +511,16 @@ export class TaskFalconProject implements vscode.WebviewViewProvider {
                 previewWindowId, previewWindowTitle,
                 vscode.ViewColumn.Beside, options);
             this.preview.webview.onDidReceiveMessage(
-                (data) => project.clickImage(data.x, data.y));
+                (data) => {
+                    switch (data.action) {
+                        case 'click':
+                            project.clickImage(data.x, data.y);
+                            break;
+                        case 'hover':
+                            project.hoverImage(data.x, data.y);
+                            break;
+                    }
+                });
             this.preview.onDidDispose(() => {
                 this.preview = undefined;
             });

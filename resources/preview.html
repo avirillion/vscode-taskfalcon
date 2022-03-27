@@ -7,16 +7,81 @@
     <title>TaskFalcon Preview</title>
     <script type="text/javascript">
         const vscode = acquireVsCodeApi();
+        let hoverTimer;
+        let idPopup;
+
+        function showIdPopup(x, y, text) {
+            idPopup = document.createElement('div');
+            idPopup.style.top = `${y}px`;
+            idPopup.style.left = `${x}px`;
+            idPopup.style.position = 'absolute';
+            idPopup.style.border = '1px solid black';
+            idPopup.style.background = '#fff';
+            idPopup.style.color = '#000';
+            idPopup.innerText = text;
+            document.body.appendChild(idPopup);
+        }
+
+        function cancelIdPopupTimer() {
+            if (hoverTimer) {
+                clearTimeout(hoverTimer);
+                hoverTimer = null;
+            }
+        }
+        
+        function hideIdPopup() {
+            if (!idPopup) {
+                return;
+            }
+            idPopup.parentNode.removeChild(idPopup);
+            idPopup = null;
+        }
+
         function clickImage(e) {
             let img = e.target;
             let scale = img.clientWidth / img.naturalWidth;
-            vscode.postMessage({ x: e.pageX / scale, y: e.pageY / scale }); 
+            vscode.postMessage({ action: 'click', x: e.pageX / scale, y: e.pageY / scale }); 
         }
+
+        function hover(e) {
+            if (hoverTimer) {
+                clearTimeout(hoverTimer);
+                hoverTimer = null;
+            }
+            hoverTimer = window.setTimeout(() => {
+                let img = e.target;
+                let scale = img.clientWidth / img.naturalWidth;
+                vscode.postMessage({ action: 'hover', x: e.pageX / scale, y: e.pageY / scale }); 
+                clearTimeout(hoverTimer);
+                hoverTimer = null;
+            }, 100);
+        }
+
+        function wheel(e) {
+            if (e.getModifierState('Meta') || e.getModifierState("Control")) {
+                e.preventDefault();
+            } 
+        }
+
+        window.addEventListener('message', event => {
+            const msg = event.data;
+            if (!msg.action) {
+                return;
+            }
+            switch (msg.action) {
+                case 'showId': {
+                    hideIdPopup();
+                    let img = document.getElementById('preview');
+                    let scale = img.clientWidth / img.naturalWidth;
+                    showIdPopup(msg.x * scale + 10, msg.y * scale, "ID: " + msg.id);
+                }
+            }
+        });
     </script>
 </head>
 <body>
     {{#if image}}
-        <img alt="TaskFalcon Preview" src="{{image}}" onclick="clickImage(event)">
+        <img id="preview" alt="TaskFalcon Preview" src="{{image}}" onclick="clickImage(event)" onmousemove="hover(event)" onmousewheel="wheel(event)" onmouseleave="hideIdPopup(); cancelIdPopupTimer();">
         <p style="color:#888; font-size:x-small; margin:0px;">Click on a task to show it in the editor</p>
     {{/if}}
     {{#if error}}
