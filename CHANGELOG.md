@@ -2,6 +2,9 @@
 
 All notable changes to the `TaskFalcon` extension will be documented in this file.
 
+## 0.8.12
+* Bugfix when using special characters (e.g. whitespace) in project folder.
+
 ## 0.8.11
 * Includes TaskFalcon 0.9.21. See [TaskFalcon Release Notes](https://taskfalcon.org/release-notes/index.html).
 

@@ -1,4 +1,5 @@
-import { exec, ChildProcess } from 'child_process';
+import { spawn, ChildProcess } from 'child_process';
+import { Readable } from 'stream';
 
 export class TaskFalconRunner {
     private cancelled: boolean = false;
@@ -22,16 +23,25 @@ export class TaskFalconRunner {
         this.process!.kill("SIGKILL");
     }
 
+    private streamToString(stream: Readable): Promise<string> {
+        const chunks:Buffer[] = [];
+        return new Promise((resolve, reject) => {
+          stream.on('data', (chunk) => chunks.push(Buffer.from(chunk)));
+          stream.on('error', (err) => reject(err));
+          stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+        });
+    }
+
     public async run(): Promise<string> {
         return new Promise<string>((resolve, reject) => {
-            this.process = exec(TaskFalconRunner.getFalconBinary() + ' ' + this.cmd.join(' '), (err, stdout, stderr) => {
-                if (err || this.cancelled) {
-                    if (!stdout) {
-                        stdout = err?.message!;
-                    }
-                    reject(stdout);
+            this.process = spawn(TaskFalconRunner.getFalconBinary(), this.cmd);
+            let stdout = this.streamToString(this.process!.stdout!);
+            this.process.on('close', async (code) => {
+                let result = await stdout;
+                if (code !== 0 || this.cancelled) {
+                    reject(result);
                 } else {
-                    resolve(stdout);
+                    resolve(result);
                 }
             });
         });

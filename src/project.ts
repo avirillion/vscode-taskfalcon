@@ -5,48 +5,7 @@ import * as vscode from 'vscode';
 import * as yaml from 'yaml';
 import { TaskFalconRunner } from './falconrunner';
 import { FilePos, findResource, findTask, parseReferences } from './referenceparser';
-
-type PreviewConfig = {
-    showIDs: boolean;
-    showClosedTasks: boolean;
-    hideTasks: boolean;
-    showEnds: boolean;
-    showEfforts: boolean;
-    showEffortsSpent: boolean;
-    showEffortsLeft: boolean;
-    showDone: boolean;
-    chart: 'gantt' | 'gantt-with-resources' | 'resources' | 'resources-with-tasks';
-    prefix: string;
-    today: string;
-    noUpdates: boolean;
-    allUpdates: boolean;
-    scale: '' | 'day' | 'week' | 'month' | 'year';
-    start: string;
-    end: string;
-    tags: string;
-    freeParams: string;
-};
-
-const defaultConfig: PreviewConfig = {
-    showIDs: false,
-    showClosedTasks: false,
-    hideTasks: false,
-    showEfforts: false,
-    showEffortsSpent: false,
-    showEffortsLeft: false,
-    showEnds: false,
-    showDone: false,
-    chart: 'gantt',
-    prefix: '',
-    today: '',
-    scale: '',
-    start: '',
-    end: '',
-    noUpdates: false,
-    allUpdates: false,
-    tags: '',
-    freeParams: '',
-};
+import { PreviewConfig, defaultConfig } from './renderconfig';
 
 enum ClickItemType {
     RESOURCE,
