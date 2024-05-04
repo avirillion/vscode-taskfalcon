@@ -2,6 +2,9 @@
 
 All notable changes to the `TaskFalcon` extension will be documented in this file.
 
+## 0.8.14
+* Includes TaskFalcon 0.9.23. See [TaskFalcon Release Notes](https://taskfalcon.org/release-notes/index.html).
+
 ## 0.8.13
 * Includes TaskFalcon 0.9.22. See [TaskFalcon Release Notes](https://taskfalcon.org/release-notes/index.html).
 
